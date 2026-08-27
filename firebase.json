@@ -1,0 +1,25 @@
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "skillora-7cee4",
+          "appId": "1:1012023695416:android:89f38415b16e4ef7026ecd",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "skillora-7cee4",
+          "configurations": {
+            "android": "1:1012023695416:android:89f38415b16e4ef7026ecd",
+            "web": "1:1012023695416:web:240b1f3278c98e25026ecd"
+          }
+        }
+      }
+    }
+  }
+}

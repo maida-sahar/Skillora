@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1012023695416",
+    "project_id": "skillora-7cee4",
+    "storage_bucket": "skillora-7cee4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1012023695416:android:89f38415b16e4ef7026ecd",
+        "android_client_info": {
+          "package_name": "com.example.skillora"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXmO0IdfWCKtM1RJ1eWMP0jRBSzFCxY1Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

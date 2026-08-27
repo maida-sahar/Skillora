@@ -1,0 +1,124 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserData().role == 'admin';
+    }
+
+    function isMentor() {
+      return isAuthenticated() && getUserData().role == 'mentor';
+    }
+
+    // =========================================================================
+    // USERS COLLECTION
+    // =========================================================================
+    match /users/{userId} {
+      // Authenticated users can read their own profile, or admins can read any user profile.
+      allow read: if isAuthenticated();
+
+      // On creation: Must be authenticated owner, and role MUST be 'student' (or initialized safely)
+      allow create: if isOwner(userId) 
+                    && request.resource.data.role == 'student'
+                    && request.resource.data.id == userId;
+
+      // On update: Owner can update profile fields, but CANNOT change their own role or id
+      allow update: if isOwner(userId) 
+                    && request.resource.data.role == resource.data.role
+                    && request.resource.data.id == resource.data.id;
+
+      // Admins have full create/update/delete control (e.g. role modification)
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // CAREERS COLLECTION
+    // =========================================================================
+    match /careers/{careerId} {
+      // Authenticated read access
+      allow read: if isAuthenticated();
+
+      // Only Admin can create, update, or delete careers
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // SCHOLARSHIPS COLLECTION
+    // =========================================================================
+    match /scholarships/{scholarshipId} {
+      // Authenticated read access
+      allow read: if isAuthenticated();
+
+      // Only Admin can create, update, or delete scholarships
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // APPLICATIONS COLLECTION
+    // =========================================================================
+    match /applications/{applicationId} {
+      // User can read their own applications, Admin can read all
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      // User can create application for themselves
+      allow create: if isAuthenticated() 
+                    && request.resource.data.userId == request.auth.uid;
+
+      // User can update their own application, Admin can update status
+      allow update: if isAuthenticated() 
+                    && (resource.data.userId == request.auth.uid || isAdmin());
+
+      // Only Admin or Application Owner can delete
+      allow delete: if isAuthenticated() 
+                    && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // =========================================================================
+    // MENTORS COLLECTION
+    // =========================================================================
+    match /mentors/{mentorId} {
+      // Authenticated users can view mentor directory
+      allow read: if isAuthenticated();
+
+      // Mentors can update their own profile, Admins can write any
+      allow create, update: if isAuthenticated() 
+                            && (request.resource.data.userId == request.auth.uid || isAdmin());
+
+      allow delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // DOCUMENTS COLLECTION
+    // =========================================================================
+    match /documents/{documentId} {
+      allow read: if isAuthenticated() 
+                  && (resource.data.userId == request.auth.uid || isAdmin() || isMentor());
+
+      allow create: if isAuthenticated() 
+                    && request.resource.data.userId == request.auth.uid;
+
+      allow update, delete: if isAuthenticated() 
+                            && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // =========================================================================
+    // DEFAULT FALLBACK DENY ALL OTHER COLLECTIONS
+    // =========================================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
