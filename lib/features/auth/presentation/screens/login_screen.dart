@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _onLogin() async {
+  Future<void> _onLogin() async {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -35,7 +35,11 @@ class _LoginScreenState extends State<LoginScreen> {
       _passwordController.text,
     );
 
-    if (!success && mounted && authProvider.errorMessage != null) {
+    if (success && mounted) {
+      // Pop any pushed auth screens back to AuthGate, which will
+      // then reactively show HomeScreen (or AdminDashboard)
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else if (!success && mounted && authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.errorMessage!),
@@ -45,11 +49,13 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _onGoogleSignIn() async {
+  Future<void> _onGoogleSignIn() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final success = await authProvider.signInWithGoogle();
 
-    if (!success && mounted && authProvider.errorMessage != null) {
+    if (success && mounted) {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else if (!success && mounted && authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.errorMessage!),
