@@ -7,6 +7,7 @@ import '../../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../../features/auth/presentation/screens/home_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/portfolio/presentation/screens/portfolio_screen.dart';
+import '../../features/documents/presentation/screens/documents_screen.dart';
 
 /// Builder for user feature routes
 class UserRoutes {
@@ -18,5 +19,6 @@ class UserRoutes {
         RouteNames.home: (context) => const HomeScreen(),
         RouteNames.profile: (context) => const ProfileScreen(),
         RouteNames.portfolio: (context) => const PortfolioScreen(),
+        RouteNames.documents: (context) => const DocumentsScreen(),
       };
 }

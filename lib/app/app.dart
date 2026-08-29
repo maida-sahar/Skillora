@@ -6,6 +6,8 @@ import '../config/constants/app_constants.dart';
 import '../features/auth/presentation/providers/auth_provider.dart';
 import '../features/profile/presentation/providers/profile_provider.dart';
 import '../features/portfolio/presentation/providers/portfolio_provider.dart';
+import '../features/documents/presentation/providers/documents_provider.dart';
+import '../admin/document_verification/presentation/providers/document_verification_provider.dart';
 
 class SkilloraApp extends StatelessWidget {
   const SkilloraApp({super.key});
@@ -17,6 +19,8 @@ class SkilloraApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => PortfolioProvider()),
+        ChangeNotifierProvider(create: (_) => DocumentsProvider()),
+        ChangeNotifierProvider(create: (_) => DocumentVerificationProvider()),
       ],
       child: MaterialApp.router(
         title: AppConstants.appName,

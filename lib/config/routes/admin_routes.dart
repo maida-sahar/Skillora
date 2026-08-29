@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'route_names.dart';
+import '../../admin/document_verification/presentation/screens/document_verification_screen.dart';
 
 /// Builder for admin feature routes
 class AdminRoutes {
@@ -9,7 +10,7 @@ class AdminRoutes {
         RouteNames.adminCareerManagement: (context) => const Scaffold(body: Center(child: Text('Career Management'))),
         RouteNames.adminSkillManagement: (context) => const Scaffold(body: Center(child: Text('Skill Management'))),
         RouteNames.adminScholarshipManagement: (context) => const Scaffold(body: Center(child: Text('Scholarship Management'))),
-        RouteNames.adminDocumentVerification: (context) => const Scaffold(body: Center(child: Text('Document Verification'))),
+        RouteNames.adminDocumentVerification: (context) => const DocumentVerificationScreen(),
         RouteNames.adminMentorManagement: (context) => const Scaffold(body: Center(child: Text('Mentor Management'))),
         RouteNames.adminJobManagement: (context) => const Scaffold(body: Center(child: Text('Job/Internship Management'))),
         RouteNames.adminApplicationManagement: (context) => const Scaffold(body: Center(child: Text('Application Management'))),

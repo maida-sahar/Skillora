@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../../../../core/utils/input_validators.dart';
 import '../../../../shared/widgets/buttons/custom_button.dart';
+import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -145,6 +146,29 @@ class _SignupScreenState extends State<SignupScreen> {
                     text: 'Sign Up',
                     isLoading: authProvider.isLoading,
                     onPressed: _onSignUp,
+                  ),
+                   const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Already have an account? "),
+                      GestureDetector(
+                        onTap: authProvider.isLoading
+                            ? null
+                            : () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                                );
+                              },
+                        child: const Text(
+                          'Sign In',
+                          style: TextStyle(
+                            color: Color(0xFF6C5CE7),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
