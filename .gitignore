@@ -34,3 +34,4 @@ ios/Flutter/Flutter.podspec
 
 # macOS
 .DS_Store
+.env
