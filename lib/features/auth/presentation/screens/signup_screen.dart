@@ -30,7 +30,7 @@ class _SignupScreenState extends State<SignupScreen> {
     super.dispose();
   }
 
-  void _onSignUp() async {
+  Future<void> _onSignUp() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (_passwordController.text != _confirmPasswordController.text) {
@@ -51,7 +51,23 @@ class _SignupScreenState extends State<SignupScreen> {
     );
 
     if (success && mounted) {
-      Navigator.of(context).pop(); // Return to auth gate
+      // Firebase auto-signs-in a new account on creation, but we want
+      // the user to land on Login (not Home) after registering, so
+      // sign them back out before returning to AuthGate.
+      await authProvider.signOut();
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Account created! Please sign in.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Pop all pushed auth screens back to AuthGate, which will
+      // now show LoginScreen since the user is signed out again.
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } else if (!success && mounted && authProvider.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
