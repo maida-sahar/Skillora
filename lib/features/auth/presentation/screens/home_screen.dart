@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
 import '../../../../config/routes/route_names.dart';
+import '../../../../admin/admin_dashboard/presentation/screens/explore/explore_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -34,7 +35,9 @@ class HomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Card(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 4,
                 child: InkWell(
                   onTap: () {
@@ -51,16 +54,24 @@ class HomeScreen extends StatelessWidget {
                       children: [
                         CircleAvatar(
                           radius: 32,
-                          backgroundColor: const Color(0xFF6C5CE7).withAlpha(51),
-                          backgroundImage: (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty)
-                              ? NetworkImage(user.avatarUrl!)
-                              : null,
-                          child: (user?.avatarUrl == null || user!.avatarUrl!.isEmpty)
+                          backgroundColor:
+                              const Color(0xFF6C5CE7).withAlpha(51),
+                          backgroundImage:
+                              (user?.avatarUrl != null &&
+                                      user!.avatarUrl!.isNotEmpty)
+                                  ? NetworkImage(user.avatarUrl!)
+                                  : null,
+                          child: (user?.avatarUrl == null ||
+                                  user!.avatarUrl!.isEmpty)
                               ? Text(
                                   (user?.displayName.isNotEmpty == true)
                                       ? user!.displayName[0].toUpperCase()
                                       : 'S',
-                                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF6C5CE7)),
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF6C5CE7),
+                                  ),
                                 )
                               : null,
                         ),
@@ -71,18 +82,27 @@ class HomeScreen extends StatelessWidget {
                             children: [
                               Text(
                                 user?.displayName ?? 'Student User',
-                                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 user?.email ?? '',
-                                style: const TextStyle(color: Colors.grey, fontSize: 14),
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
                               ),
                               const SizedBox(height: 8),
                               Row(
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: Colors.blue.shade100,
                                       borderRadius: BorderRadius.circular(12),
@@ -97,7 +117,14 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                   ),
                                   const Spacer(),
-                                  const Text('Edit Profile >', style: TextStyle(color: Color(0xFF6C5CE7), fontWeight: FontWeight.bold, fontSize: 12)),
+                                  const Text(
+                                    'Edit Profile >',
+                                    style: TextStyle(
+                                      color: Color(0xFF6C5CE7),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
@@ -125,30 +152,55 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 32),
               const Text(
                 'Skillora Career Dashboard',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 12),
               Expanded(
                 child: ListView(
-                  children: const [
-                    ListTile(
-                      leading: Icon(Icons.explore, color: Color(0xFF6C5CE7)),
+                  children: [
+                    const ListTile(
+                      leading: Icon(
+                        Icons.explore,
+                        color: Color(0xFF6C5CE7),
+                      ),
                       title: Text('Career Recommendations'),
-                      subtitle: Text('Discover personalized paths based on your skills'),
+                      subtitle: Text(
+                        'Discover personalized paths based on your skills',
+                      ),
                       trailing: Icon(Icons.chevron_right),
                     ),
-                    Divider(),
+                    const Divider(),
                     ListTile(
-                      leading: Icon(Icons.school, color: Color(0xFF6C5CE7)),
-                      title: Text('Scholarships Directory'),
-                      subtitle: Text('Explore funding and eligibility criteria'),
-                      trailing: Icon(Icons.chevron_right),
+                      leading: const Icon(
+                        Icons.school,
+                        color: Color(0xFF6C5CE7),
+                      ),
+                      title: const Text('Scholarships Directory'),
+                      subtitle: const Text(
+                        'Explore funding and eligibility criteria',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const ExploreScreen(),
+                          ),
+                        );
+                      },
                     ),
-                    Divider(),
-                    ListTile(
-                      leading: Icon(Icons.assignment, color: Color(0xFF6C5CE7)),
+                    const Divider(),
+                    const ListTile(
+                      leading: Icon(
+                        Icons.assignment,
+                        color: Color(0xFF6C5CE7),
+                      ),
                       title: Text('Applications & Deadlines'),
-                      subtitle: Text('Track submitted applications and deadlines'),
+                      subtitle: Text(
+                        'Track submitted applications and deadlines',
+                      ),
                       trailing: Icon(Icons.chevron_right),
                     ),
                   ],
