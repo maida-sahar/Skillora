@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/gemini_service.dart';
 
 class SkillAssessmentScreen extends StatefulWidget {
-  const SkillAssessmentScreen({Key? key}) : super(key: key);
+  const SkillAssessmentScreen({super.key});
 
   @override
   State<SkillAssessmentScreen> createState() => _SkillAssessmentScreenState();
