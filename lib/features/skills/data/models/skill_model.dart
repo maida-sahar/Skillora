@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// A master catalog skill (e.g. "Flutter", "SQL") managed by admins via
+/// Admin Skill Management, and referenced by Careers, Skill Assessment,
+/// and Skill Gap Analysis.
 class SkillModel {
   final String id;
   final String name;
@@ -12,7 +15,7 @@ class SkillModel {
     required this.id,
     required this.name,
     required this.category,
-    required this.description,
+    this.description = '',
     this.level = 'Intermediate',
     required this.createdAt,
   });
@@ -40,3 +43,4 @@ class SkillModel {
     };
   }
 }
+

@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
+/// Thin wrapper around the Gemini SDK. Kept generic (text-in, JSON-out)
+/// so RecommendationService owns the actual prompt logic and this class
+/// stays reusable for anything else in the app that needs an AI call.
 class GeminiService {
   String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
   GenerativeModel? _model;
@@ -68,6 +72,35 @@ Please provide a structured analysis including:
       return response.text ?? 'Response generation failed. Please try again.';
     } catch (e) {
       return 'AI Assessment Error: $e. Please verify your GEMINI_API_KEY in .env.';
+    }
+  }
+
+  Future<String> generateText(String prompt) async {
+    if (!isKeyConfigured || _model == null) return '';
+    try {
+      final response = await _model!.generateContent([Content.text(prompt)]);
+      return response.text ?? '';
+    } catch (e) {
+      debugPrint('Gemini generateText error: $e');
+      return '';
+    }
+  }
+
+  /// Sends [prompt] to Gemini and parses the response as JSON. Strips
+  /// ```json ... ``` markdown fences if Gemini wraps its answer in one
+  /// (it frequently does even when told not to).
+  Future<Map<String, dynamic>> generateJson(String prompt) async {
+    if (!isKeyConfigured || _model == null) return {};
+    try {
+      final response = await _model!.generateContent([Content.text(prompt)]);
+      final raw = response.text ?? '{}';
+      final cleaned = raw.replaceAll(RegExp(r'```json|```'), '').trim();
+      final decoded = jsonDecode(cleaned);
+      if (decoded is Map<String, dynamic>) return decoded;
+      return {'result': decoded};
+    } catch (e) {
+      debugPrint('Gemini generateJson error: $e');
+      return {};
     }
   }
 }

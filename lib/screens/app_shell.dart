@@ -3,7 +3,6 @@ import '../features/auth/presentation/screens/home_screen.dart';
 import '../features/applications/presentation/screens/applications_screen.dart';
 import '../features/notifications/presentation/screens/notifications_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
-import '../shared/widgets/navigation/skillora_bottom_nav.dart';
 
 /// Post-login shell for students: Clean Modern White Bottom Navigation Bar
 class AppShell extends StatefulWidget {
@@ -28,7 +27,7 @@ class _AppShellState extends State<AppShell> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: SkilloraBottomNav(
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
@@ -53,6 +52,31 @@ class _AppShellState extends State<AppShell> {
             label: 'Profile',
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ComingSoonScreen extends StatelessWidget {
+  final String title;
+  const _ComingSoonScreen({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.hourglass_top, size: 48, color: Colors.grey),
+            const SizedBox(height: 12),
+            Text(
+              '$title is coming soon',
+              style: const TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+          ],
+        ),
       ),
     );
   }
