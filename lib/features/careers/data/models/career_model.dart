@@ -1,5 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Handles both a real Firestore Timestamp and a plain string entered
+/// by mistake in the console, instead of crashing the document read.
+DateTime _parseDate(dynamic value) {
+  if (value == null) return DateTime.now();
+  if (value is Timestamp) return value.toDate();
+  if (value is String) {
+    final iso = DateTime.tryParse(value);
+    if (iso != null) return iso;
+  }
+  return DateTime.now();
+}
+
 class CareerModel {
   final String id;
   final String title;
@@ -36,8 +48,8 @@ class CareerModel {
       education: data['education'] as String? ?? '',
       careerLevel: data['careerLevel'] as String? ?? 'Entry Level',
       relatedCourses: List<String>.from(data['relatedCourses'] ?? []),
-      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt: (data['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      createdAt: _parseDate(data['createdAt']),
+      updatedAt: _parseDate(data['updatedAt']),
     );
   }
 

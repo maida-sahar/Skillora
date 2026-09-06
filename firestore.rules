@@ -115,6 +115,53 @@ service cloud.firestore {
     }
 
     // =========================================================================
+    // SKILLS COLLECTION (master catalog)
+    // =========================================================================
+    match /skills/{skillId} {
+      // Any signed-in user can read the catalog (needed by Skill
+      // Assessment, Skill Gap Analysis, and Career Recommendations).
+      allow read: if isAuthenticated();
+
+      // Only Admin manages the catalog (Admin Skill Management).
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // USER_SKILLS COLLECTION (self-assessment results)
+    // =========================================================================
+    match /user_skills/{docId} {
+      // Owner can read their own results; Admin/Mentor can read any
+      // (needed for Reports & Analytics and mentor guidance).
+      allow read: if isAuthenticated()
+                  && (resource.data.userId == request.auth.uid || isAdmin() || isMentor());
+
+      // Only the owner can (re-)submit their own assessment.
+      allow create, update: if isAuthenticated()
+                  && request.resource.data.userId == request.auth.uid;
+
+      allow delete: if isAuthenticated()
+                  && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // =========================================================================
+    // LEARNING_ROADMAPS COLLECTION (saved from Skill Gap Analysis)
+    // =========================================================================
+    match /learning_roadmaps/{docId} {
+      allow read, update, delete: if isAuthenticated()
+                  && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated()
+                  && request.resource.data.userId == request.auth.uid;
+    }
+
+    // =========================================================================
+    // COURSES COLLECTION (Courses & Resources catalog)
+    // =========================================================================
+    match /courses/{courseId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
     // DEFAULT FALLBACK DENY ALL OTHER COLLECTIONS
     // =========================================================================
     match /{document=**} {

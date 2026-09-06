@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../features/auth/presentation/screens/home_screen.dart';
 import '../features/portfolio/presentation/screens/portfolio_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
+import '../dev/dev_test_menu_screen.dart'; // TEMPORARY — remove once all features have real nav
 
 /// Main post-login shell for students: bottom-nav tabs wrapping the real,
 /// working feature screens. Explore & Applications show a "coming soon"
@@ -28,6 +29,15 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _currentIndex, children: _screens),
+      // TEMPORARY — testing-only entry point for Member 2's features.
+      // Remove once they're wired into the real dashboard/admin nav.
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const DevTestMenuScreen()),
+        ),
+        icon: const Icon(Icons.science_outlined),
+        label: const Text('Test'),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
