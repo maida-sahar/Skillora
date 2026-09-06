@@ -1,4 +1,3 @@
-import 'skill_assessment_screen.dart';
 import 'package:flutter/material.dart';
 import 'route_names.dart';
 import '../../features/auth/presentation/screens/auth_gate.dart';
@@ -9,6 +8,12 @@ import '../../features/auth/presentation/screens/home_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/portfolio/presentation/screens/portfolio_screen.dart';
 import '../../features/documents/presentation/screens/documents_screen.dart';
+import '../../features/skill_assessment/presentation/screens/skill_assessment_screen.dart';
+import '../../features/skill_gap_analysis/presentation/screens/skill_gap_analysis_screen.dart';
+import '../../features/career_recommendations/presentation/screens/career_recommendations_screen.dart';
+import '../../features/scholarship_eligibility/presentation/screens/scholarship_eligibility_screen.dart';
+import '../../features/learning_roadmap/presentation/screens/learning_roadmap_screen.dart';
+import '../../features/courses_resources/presentation/screens/courses_resources_screen.dart';
 
 /// Builder for user feature routes
 class UserRoutes {
@@ -21,5 +26,11 @@ class UserRoutes {
         RouteNames.profile: (context) => const ProfileScreen(),
         RouteNames.portfolio: (context) => const PortfolioScreen(),
         RouteNames.documents: (context) => const DocumentsScreen(),
+        RouteNames.skillAssessment: (context) => const SkillAssessmentScreen(),
+        RouteNames.skillGapAnalysis: (context) => const SkillGapAnalysisScreen(),
+        RouteNames.careerRecommendations: (context) => const CareerRecommendationsScreen(),
+        RouteNames.scholarshipEligibility: (context) => const ScholarshipEligibilityScreen(),
+        RouteNames.learningRoadmap: (context) => const LearningRoadmapScreen(),
+        RouteNames.coursesResources: (context) => const CoursesResourcesScreen(),
       };
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../../../profile/presentation/screens/profile_screen.dart';
+import '../../../../dev/dev_test_menu_screen.dart'; // TEMPORARY — remove with the FAB below once real nav exists
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,6 +13,15 @@ class HomeScreen extends StatelessWidget {
     final user = authProvider.currentUser;
 
     return Scaffold(
+      // TEMPORARY — testing-only entry point for Member 2's screens.
+      // Remove once they're wired into the real dashboard/admin nav.
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const DevTestMenuScreen()),
+        ),
+        icon: const Icon(Icons.science_outlined),
+        label: const Text('Test My Features'),
+      ),
       appBar: AppBar(
         title: const Text('Skillora Home'),
         actions: [
