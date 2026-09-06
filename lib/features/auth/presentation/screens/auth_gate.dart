@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import 'login_screen.dart';
-import 'home_screen.dart';
+import '../../../../screens/app_shell.dart';
 import '../../../../admin/admin_dashboard/presentation/screens/admin_dashboard_screen.dart';
 
 class AuthGate extends StatelessWidget {
@@ -35,7 +35,7 @@ class AuthGate extends StatelessWidget {
           if (role == 'admin') {
             return const AdminDashboardScreen();
           }
-          return const HomeScreen();
+          return const AppShell();
         }
 
         return const LoginScreen();
