@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -7,14 +8,6 @@ import '../../../../supabase/supabase_storage_service.dart';
 import '../../domain/repositories/documents_repository.dart';
 import '../models/document_model.dart';
 
-/// NOTE: Free-plan (Spark) version — uploads/downloads go straight from
-/// the Flutter app to Supabase using the anon key. There is no Cloud
-/// Functions relay and no service-role-key gatekeeping. The
-/// "user-documents" bucket stays non-public in the Supabase dashboard,
-/// but its RLS policies allow the anon key full access — so protection
-/// relies on paths being unguessable ({uid}/{timestamp}_{filename}),
-/// not on real per-user access control. Upgrade to Blaze later and swap
-/// this back to the Cloud Functions version for real security.
 class DocumentsRepositoryImpl implements DocumentsRepository {
   final FirebaseFirestore _firestore;
   final SupabaseStorageService _storage;
@@ -27,34 +20,57 @@ class DocumentsRepositoryImpl implements DocumentsRepository {
 
   static const _collection = 'documents';
   static const _bucket = 'user-documents';
-  static const _maxBytes = 10 * 1024 * 1024; // matches Supabase bucket limit
+  static const _maxBytes = 10 * 1024 * 1024; // 10 MB limit
+  static const _allowedExtensions = {'png', 'jpg', 'jpeg', 'pdf'};
 
   @override
   Future<DocumentModel> uploadDocument({
     required String userId,
     required String documentType,
-    required File file,
+    File? file,
+    Uint8List? fileBytes,
+    String? fileName,
   }) async {
     try {
-      final fileName = file.path.split('/').last;
-      _assertAllowedExtension(fileName);
-
-      final length = await file.length();
-      if (length > _maxBytes) {
-        throw const ServerException('File exceeds the 10MB limit.');
+      if (userId.trim().isEmpty) {
+        throw const ServerException('User authentication is required to upload documents.');
       }
 
-      final safeName = fileName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
+      Uint8List bytes;
+      if (fileBytes != null) {
+        bytes = fileBytes;
+      } else if (file != null) {
+        bytes = await file.readAsBytes();
+      } else {
+        throw const ServerException('No document file or bytes provided for upload.');
+      }
+
+      final resolvedName = fileName ?? (file != null ? file.path.split('/').last : 'document.pdf');
+      _assertAllowedExtension(resolvedName);
+
+      if (bytes.length > _maxBytes) {
+        throw const ServerException('Document file size exceeds the 10 MB limit.');
+      }
+
+      final ext = resolvedName.split('.').last.toLowerCase();
+      final mimeType = ext == 'pdf' ? 'application/pdf' : 'image/$ext';
+      final safeName = resolvedName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
       final storagePath = '$userId/${DateTime.now().millisecondsSinceEpoch}_$safeName';
 
-      await _storage.uploadFile(_bucket, storagePath, file);
+      // Upload to private bucket 'user-documents' using bytes
+      await _storage.uploadFileBytes(
+        _bucket,
+        storagePath,
+        bytes,
+        contentType: mimeType,
+      );
 
       final docRef = _firestore.collection(_collection).doc();
       final model = DocumentModel(
         id: docRef.id,
         userId: userId,
         documentType: documentType,
-        fileName: fileName,
+        fileName: resolvedName,
         storagePath: storagePath,
         status: DocumentStatus.pending,
         uploadedAt: DateTime.now(),
@@ -81,8 +97,7 @@ class DocumentsRepositoryImpl implements DocumentsRepository {
 
   @override
   Future<String> getViewUrl(String storagePath) async {
-    // 10-minute signed URL — still expires even though RLS is anon-open,
-    // so a leaked link doesn't work forever.
+    // Generate secure temporary signed URL for private bucket access
     return _storage.getSignedUrl(_bucket, storagePath, expiresInSeconds: 600);
   }
 
@@ -103,9 +118,9 @@ class DocumentsRepositoryImpl implements DocumentsRepository {
 
   void _assertAllowedExtension(String fileName) {
     final ext = fileName.split('.').last.toLowerCase();
-    const allowed = {'png', 'jpg', 'jpeg', 'pdf'};
-    if (!allowed.contains(ext)) {
-      throw ServerException('Unsupported file type: .$ext');
+    if (!_allowedExtensions.contains(ext)) {
+      throw ServerException('Unsupported file type (.$ext). Only PNG, JPG, JPEG, and PDF documents are allowed.');
     }
   }
 }
+

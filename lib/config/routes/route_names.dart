@@ -8,6 +8,7 @@ class RouteNames {
 
   // User Features Routes
   static const String home = '/home';
+  static const String explore = '/explore';
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
   static const String skillAssessment = '/skill-assessment';

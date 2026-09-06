@@ -1,21 +1,33 @@
 import 'package:flutter/material.dart';
 import 'route_names.dart';
+import '../../admin/admin_dashboard/presentation/screens/admin_dashboard_screen.dart';
+import '../../admin/user_management/presentation/screens/user_management_screen.dart';
+import '../../admin/career_management/presentation/screens/career_management_screen.dart';
+import '../../admin/skill_management/presentation/screens/skill_management_screen.dart';
+import '../../admin/scholarship_management/presentation/screens/scholarship_management_screen.dart';
+import '../../admin/job_internship_management/presentation/screens/job_management_screen.dart';
+import '../../admin/mentor_management/presentation/screens/mentor_management_screen.dart';
+import '../../admin/application_management/presentation/screens/application_management_screen.dart';
 import '../../admin/document_verification/presentation/screens/document_verification_screen.dart';
+import '../../admin/notification_management/presentation/screens/notification_management_screen.dart';
+import '../../admin/reports_analytics/presentation/screens/reports_analytics_screen.dart';
+import '../../admin/admin_settings/presentation/screens/admin_settings_screen.dart';
 
 /// Builder for admin feature routes
 class AdminRoutes {
   static Map<String, WidgetBuilder> get routes => {
-        RouteNames.adminDashboard: (context) => const Scaffold(body: Center(child: Text('Admin Dashboard'))),
-        RouteNames.adminUserManagement: (context) => const Scaffold(body: Center(child: Text('User Management'))),
-        RouteNames.adminCareerManagement: (context) => const Scaffold(body: Center(child: Text('Career Management'))),
-        RouteNames.adminSkillManagement: (context) => const Scaffold(body: Center(child: Text('Skill Management'))),
-        RouteNames.adminScholarshipManagement: (context) => const Scaffold(body: Center(child: Text('Scholarship Management'))),
+        RouteNames.adminDashboard: (context) => const AdminDashboardScreen(),
+        RouteNames.adminUserManagement: (context) => const UserManagementScreen(),
+        RouteNames.adminCareerManagement: (context) => const CareerManagementScreen(),
+        RouteNames.adminSkillManagement: (context) => const SkillManagementScreen(),
+        RouteNames.adminScholarshipManagement: (context) => const ScholarshipManagementScreen(),
+        RouteNames.adminJobManagement: (context) => const JobManagementScreen(),
+        RouteNames.adminMentorManagement: (context) => const MentorManagementScreen(),
+        RouteNames.adminApplicationManagement: (context) => const ApplicationManagementScreen(),
         RouteNames.adminDocumentVerification: (context) => const DocumentVerificationScreen(),
-        RouteNames.adminMentorManagement: (context) => const Scaffold(body: Center(child: Text('Mentor Management'))),
-        RouteNames.adminJobManagement: (context) => const Scaffold(body: Center(child: Text('Job/Internship Management'))),
-        RouteNames.adminApplicationManagement: (context) => const Scaffold(body: Center(child: Text('Application Management'))),
-        RouteNames.adminNotificationManagement: (context) => const Scaffold(body: Center(child: Text('Notification Management'))),
-        RouteNames.adminReportsAnalytics: (context) => const Scaffold(body: Center(child: Text('Reports & Analytics'))),
-        RouteNames.adminSettings: (context) => const Scaffold(body: Center(child: Text('Admin Settings'))),
+        RouteNames.adminNotificationManagement: (context) => const NotificationManagementScreen(),
+        RouteNames.adminReportsAnalytics: (context) => const ReportsAnalyticsScreen(),
+        RouteNames.adminSettings: (context) => const AdminSettingsScreen(),
       };
 }
+

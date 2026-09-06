@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import '../services/gemini_service.dart';
+import '../theme/app_colors.dart';
+import '../theme/app_typography.dart';
+import '../shared/widgets/cards/app_card.dart';
+import '../shared/widgets/inputs/app_text_field.dart';
+import '../shared/widgets/buttons/custom_button.dart';
 
 class SkillAssessmentScreen extends StatefulWidget {
   const SkillAssessmentScreen({super.key});
@@ -16,10 +21,21 @@ class _SkillAssessmentScreenState extends State<SkillAssessmentScreen> {
   bool _isLoading = false;
   String _analysisResult = '';
 
+  @override
+  void dispose() {
+    _skillsController.dispose();
+    _roleController.dispose();
+    super.dispose();
+  }
+
   Future<void> _performAssessment() async {
     if (_skillsController.text.trim().isEmpty || _roleController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tamam fields ko fill karein')),
+        const SnackBar(
+          content: Text('Please fill in both current skills and target role.'),
+          backgroundColor: AppColors.warning,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
@@ -34,69 +50,106 @@ class _SkillAssessmentScreenState extends State<SkillAssessmentScreen> {
       targetRole: _roleController.text.trim(),
     );
 
-    setState(() {
-      _isLoading = false;
-      _analysisResult = result;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        _analysisResult = result;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundDark,
       appBar: AppBar(
-        title: const Text('AI Skill Assessment'),
-        centerTitle: true,
+        title: Text('AI Skill Assessment', style: AppTypography.titleLarge),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextField(
-              controller: _skillsController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Apni Current Skills Likhein',
-                hintText: 'e.g. HTML, CSS, Basics of JavaScript, Flutter UI',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _roleController,
-              decoration: const InputDecoration(
-                labelText: 'Target Job Role',
-                hintText: 'e.g. Flutter Developer, Full Stack Developer',
-                border: OutlineInputBorder(),
+            // Header Banner Card
+            AppCard(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.cyanSoft,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.cyan),
+                    ),
+                    child: const Icon(Icons.auto_awesome, color: AppColors.cyan, size: 28),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'AI Competency Analysis',
+                          style: AppTypography.titleMedium,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Evaluate your skill gap against market requirements',
+                          style: AppTypography.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _isLoading ? null : _performAssessment,
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
+
+            // Form Input Card
+            AppCard(
+              padding: const EdgeInsets.all(22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AppTextField(
+                    label: 'Current Skills & Competencies',
+                    hint: 'e.g. Flutter UI, Dart, REST APIs, Git, Firebase',
+                    controller: _skillsController,
+                    maxLines: 3,
+                    prefixIcon: Icons.stars_outlined,
+                  ),
+                  const SizedBox(height: 18),
+                  AppTextField(
+                    label: 'Target Job Role',
+                    hint: 'e.g. Senior Flutter Developer, AI Engineer',
+                    controller: _roleController,
+                    prefixIcon: Icons.work_outline_rounded,
+                  ),
+                  const SizedBox(height: 24),
+                  CustomButton(
+                    text: 'Analyze Skill Gap',
+                    isLoading: _isLoading,
+                    icon: Icons.bolt,
+                    onPressed: _performAssessment,
+                  ),
+                ],
               ),
-              child: _isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Analyze Skill Gap', style: TextStyle(fontSize: 16)),
             ),
             const SizedBox(height: 24),
+
+            // AI Result Card
             if (_analysisResult.isNotEmpty) ...[
-              const Text(
-                'AI Recommendation Result:',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Text(
+                'AI Career Recommendation',
+                style: AppTypography.titleLarge,
               ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Text(
+              const SizedBox(height: 12),
+              AppCard(
+                padding: const EdgeInsets.all(22),
+                child: SelectableText(
                   _analysisResult,
-                  style: const TextStyle(fontSize: 14, height: 1.4),
+                  style: AppTypography.bodyMedium.copyWith(color: Colors.white, height: 1.5),
                 ),
               ),
             ],

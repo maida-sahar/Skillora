@@ -35,13 +35,26 @@ class ScholarshipModel {
 
   factory ScholarshipModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? {};
+
+    // Safely parse eligibility criteria (handles array 'eligibilityCriteria' or legacy string 'eligibility')
+    List<String> criteria = [];
+    if (data['eligibilityCriteria'] != null) {
+      criteria = List<String>.from(data['eligibilityCriteria']);
+    } else if (data['eligibility'] != null) {
+      if (data['eligibility'] is List) {
+        criteria = List<String>.from(data['eligibility']);
+      } else {
+        criteria = [data['eligibility'].toString()];
+      }
+    }
+
     return ScholarshipModel(
       id: doc.id,
       title: data['title'] as String? ?? '',
       organization: data['organization'] as String? ?? '',
       description: data['description'] as String? ?? '',
       field: data['field'] as String? ?? '',
-      eligibilityCriteria: List<String>.from(data['eligibilityCriteria'] ?? []),
+      eligibilityCriteria: criteria,
       requiredDocuments: List<String>.from(data['requiredDocuments'] ?? []),
       deadline: (data['deadline'] as Timestamp?)?.toDate() ?? DateTime.now(),
       amount: (data['amount'] as num?)?.toDouble() ?? 0.0,

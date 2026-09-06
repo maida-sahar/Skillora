@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../../shared/widgets/empty_state_widget.dart';
 import '../../../../features/documents/data/models/document_model.dart';
 import '../providers/document_verification_provider.dart';
 
@@ -51,8 +52,11 @@ class _DocumentVerificationScreenState extends State<DocumentVerificationScreen>
           }
           final docs = snapshot.data ?? [];
           if (docs.isEmpty) {
-            return const Center(
-              child: Text('No documents found.', style: TextStyle(color: Colors.white70)),
+            return const AppEmptyState(
+              title: 'No Documents Found',
+              message: 'There are currently no document verification requests in this queue.',
+              lottieAsset: 'assets/animations/empty_documents.json',
+              fallbackIcon: Icons.verified_user_outlined,
             );
           }
           return ListView.builder(

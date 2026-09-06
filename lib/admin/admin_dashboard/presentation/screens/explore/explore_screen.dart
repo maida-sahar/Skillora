@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../../../../../theme/app_colors.dart';
+import '../../../../../theme/app_typography.dart';
 
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
@@ -11,25 +11,66 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   final TextEditingController _searchController = TextEditingController();
+  int _selectedFilterIndex = 0;
 
-  String selectedField = 'All';
+  final List<String> _filters = ['All', 'Deadline Soon', 'Saved'];
 
-  final List<String> fields = [
-    'All',
-    'Computer Science',
-    'Business',
-    'Engineering',
-    'Medical',
+  final List<Map<String, dynamic>> _items = [
+    {
+      'title': 'Women in Tech Grant',
+      'subtitle': 'Google Techmakers',
+      'value': '\$10,000 / Full Grant',
+      'category': 'Scholarship',
+      'accentColor': AppColors.pastelMintText,
+      'isSaved': true,
+      'isDeadlineSoon': true,
+    },
+    {
+      'title': 'Full-Stack AI Pathway',
+      'subtitle': 'Skillora Academy',
+      'value': '12 Weeks • Certified',
+      'category': 'Featured Course',
+      'accentColor': AppColors.pastelOrangeText,
+      'isSaved': false,
+      'isDeadlineSoon': false,
+    },
+    {
+      'title': 'UX Research Fellowship',
+      'subtitle': 'Meta Design Lab',
+      'value': '\$7,500 / Stipend',
+      'category': 'Fellowship',
+      'accentColor': AppColors.pastelPinkText,
+      'isSaved': true,
+      'isDeadlineSoon': true,
+    },
+    {
+      'title': 'Cloud Architecture Grant',
+      'subtitle': 'AWS Education',
+      'value': '8 Weeks • Advanced',
+      'category': 'Course Grant',
+      'accentColor': AppColors.pastelBlueText,
+      'isSaved': false,
+      'isDeadlineSoon': false,
+    },
+    {
+      'title': 'Data Science Leader Grant',
+      'subtitle': 'Microsoft Learn',
+      'value': '\$5,000 / Grant',
+      'category': 'Scholarship',
+      'accentColor': AppColors.pastelMintText,
+      'isSaved': false,
+      'isDeadlineSoon': true,
+    },
+    {
+      'title': 'Cybersecurity Bootcamp',
+      'subtitle': 'Cloudflare Institute',
+      'value': '10 Weeks • Intensive',
+      'category': 'Bootcamp',
+      'accentColor': AppColors.pastelOrangeText,
+      'isSaved': true,
+      'isDeadlineSoon': false,
+    },
   ];
-
-  @override
-  void initState() {
-    super.initState();
-
-    _searchController.addListener(() {
-      setState(() {});
-    });
-  }
 
   @override
   void dispose() {
@@ -37,685 +78,347 @@ class _ExploreScreenState extends State<ExploreScreen> {
     super.dispose();
   }
 
-  List<QueryDocumentSnapshot<Map<String, dynamic>>> _filterScholarships(
-    List<QueryDocumentSnapshot<Map<String, dynamic>>> documents,
-  ) {
+  List<Map<String, dynamic>> get _filteredItems {
     final query = _searchController.text.trim().toLowerCase();
 
-    return documents.where((document) {
-      final data = document.data();
+    return _items.where((item) {
+      final title = item['title'].toString().toLowerCase();
+      final subtitle = item['subtitle'].toString().toLowerCase();
+      final matchesSearch = query.isEmpty || title.contains(query) || subtitle.contains(query);
 
-      final title = (data['title'] ?? '').toString().toLowerCase();
-      final description =
-          (data['description'] ?? '').toString().toLowerCase();
-      final field = (data['field'] ?? '').toString();
+      if (!matchesSearch) return false;
 
-      final matchesSearch =
-          query.isEmpty ||
-          title.contains(query) ||
-          description.contains(query) ||
-          field.toLowerCase().contains(query);
+      if (_selectedFilterIndex == 1) {
+        return item['isDeadlineSoon'] == true;
+      } else if (_selectedFilterIndex == 2) {
+        return item['isSaved'] == true;
+      }
 
-      final matchesField =
-          selectedField == 'All' || field == selectedField;
-
-      return matchesSearch && matchesField;
+      return true;
     }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Explore'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bookmark_outline),
-            tooltip: 'Saved Scholarships',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const SavedScholarshipsScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Explore Opportunities',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+              // Top Bar Greeting Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Explore Opportunities',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.textMutedLight,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Hi, Maida',
+                        style: AppTypography.displayLarge.copyWith(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.headingDark,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Avatar photo with thin white ring
+                  Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x14000000),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: const CircleAvatar(
+                      radius: 19,
+                      backgroundColor: Color(0xFFE2E8F0),
+                      backgroundImage: NetworkImage(
+                        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=256&auto=format&fit=crop',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Search Bar: White Pill, Light Gray Border, Search Icon Left, Filter Icon Right
+              Container(
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(26),
+                  border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x0A000000),
+                      blurRadius: 12,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 16),
+                    const Icon(
+                      Icons.search_rounded,
+                      color: AppColors.textSecondaryLight,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        onChanged: (_) => setState(() {}),
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: AppColors.headingDark,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Search scholarships or courses...',
+                          hintStyle: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.textMutedLight,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        // Open Filter Modal / Options
+                      },
+                      icon: const Icon(
+                        Icons.tune_rounded,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
                 ),
               ),
 
               const SizedBox(height: 20),
 
-              // Search
-              TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search careers, scholarships...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                          },
-                        )
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              const Text(
-                'Filter by Field',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 10),
-
+              // Filter Chips Row ("All", "Deadline Soon", "Saved")
               SizedBox(
-                height: 45,
-                child: ListView.builder(
+                height: 38,
+                child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: fields.length,
+                  itemCount: _filters.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 10),
                   itemBuilder: (context, index) {
-                    final field = fields[index];
+                    final isSelected = index == _selectedFilterIndex;
+                    final label = _filters[index];
 
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(field),
-                        selected: selectedField == field,
-                        onSelected: (_) {
-                          setState(() {
-                            selectedField = field;
-                          });
-                        },
+                    return GestureDetector(
+                      onTap: () => setState(() => _selectedFilterIndex = index),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 250),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                        decoration: BoxDecoration(
+                          gradient: isSelected ? AppColors.primaryGradient : null,
+                          color: isSelected ? null : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: isSelected
+                              ? null
+                              : Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: AppColors.primary.withValues(alpha: 0.3),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: Text(
+                          label,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: isSelected ? Colors.white : AppColors.textSecondaryLight,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                     );
                   },
                 ),
-              ),
-
-              const SizedBox(height: 22),
-
-              const Text(
-                'Explore',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              Row(
-                children: [
-                  _buildCategory(
-                    'Careers',
-                    Icons.work_outline,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildCategory(
-                    'Scholarships',
-                    Icons.school_outlined,
-                  ),
-                  const SizedBox(width: 8),
-                  _buildCategory(
-                    'Mentors',
-                    Icons.people_outline,
-                  ),
-                ],
               ),
 
               const SizedBox(height: 24),
 
-              const Text(
-                'Scholarships',
-                style: TextStyle(
+              // Section Title
+              Text(
+                'Browse Opportunities',
+                style: AppTypography.displayMedium.copyWith(
                   fontSize: 20,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.headingDark,
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
 
-              // Firestore Scholarships
-              Expanded(
-                child: StreamBuilder<
-                    QuerySnapshot<Map<String, dynamic>>>(
-                  stream: FirebaseFirestore.instance
-                      .collection('scholarships')
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Error loading scholarships.\n${snapshot.error}',
-                          textAlign: TextAlign.center,
-                        ),
-                      );
-                    }
-
-                    if (!snapshot.hasData ||
-                        snapshot.data!.docs.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          'No scholarships available.',
-                        ),
-                      );
-                    }
-
-                    final scholarships =
-                        _filterScholarships(snapshot.data!.docs);
-
-                    if (scholarships.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          'No scholarships found.',
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      itemCount: scholarships.length,
-                      itemBuilder: (context, index) {
-                        final document = scholarships[index];
-                        final data = document.data();
-
-                        return _buildScholarshipCard(
-                          context,
-                          document.id,
-                          data,
-                        );
-                      },
-                    );
-                  },
+              // 2-Column Grid of White Rounded Cards
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 14,
+                  childAspectRatio: 0.82,
                 ),
+                itemCount: _filteredItems.length,
+                itemBuilder: (context, index) {
+                  final item = _filteredItems[index];
+                  final accentColor = item['accentColor'] as Color;
+
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x0E000000),
+                          blurRadius: 16,
+                          spreadRadius: 0,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Small Colored Top Accent Bar
+                        Container(
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: accentColor,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(22),
+                            ),
+                          ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Category Tag
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: accentColor.withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      item['category'] as String,
+                                      style: AppTypography.labelSmall.copyWith(
+                                        color: accentColor,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+
+                                  Icon(
+                                    item['isSaved'] == true
+                                        ? Icons.bookmark_rounded
+                                        : Icons.bookmark_border_rounded,
+                                    size: 18,
+                                    color: item['isSaved'] == true
+                                        ? AppColors.primary
+                                        : AppColors.textMutedLight,
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              // Title in Bold
+                              Text(
+                                item['title'] as String,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.titleMedium.copyWith(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.headingDark,
+                                  height: 1.25,
+                                ),
+                              ),
+
+                              const SizedBox(height: 4),
+
+                              // Short Muted Subtitle
+                              Text(
+                                item['subtitle'] as String,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.bodySmall.copyWith(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondaryLight,
+                                ),
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // Bold Amount or Duration at the Bottom
+                              Text(
+                                item['value'] as String,
+                                style: AppTypography.labelLarge.copyWith(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.headingDark,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
+
+              const SizedBox(height: 24),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCategory(String title, IconData icon) {
-    return Expanded(
-      child: Card(
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('$title section selected'),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            child: Column(
-              children: [
-                Icon(icon, size: 28),
-                const SizedBox(height: 6),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildScholarshipCard(
-    BuildContext context,
-    String documentId,
-    Map<String, dynamic> data,
-  ) {
-    final title = (data['title'] ?? 'Scholarship').toString();
-
-    final description =
-        (data['description'] ?? 'No description available.')
-            .toString();
-
-    final field = (data['field'] ?? 'Not specified').toString();
-
-    final deadline = (data['deadline'] ?? 'Not specified').toString();
-
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(14),
-        leading: const CircleAvatar(
-          child: Icon(Icons.school),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Text(
-            '$description\n\nField: $field\nDeadline: $deadline',
-          ),
-        ),
-        trailing: const Icon(
-          Icons.arrow_forward_ios,
-          size: 18,
-        ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ScholarshipDetailScreen(
-                documentId: documentId,
-                data: data,
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-// ======================================================
-// SCHOLARSHIP DETAIL SCREEN
-// ======================================================
-
-class ScholarshipDetailScreen extends StatefulWidget {
-  final String documentId;
-  final Map<String, dynamic> data;
-
-  const ScholarshipDetailScreen({
-    super.key,
-    required this.documentId,
-    required this.data,
-  });
-
-  @override
-  State<ScholarshipDetailScreen> createState() =>
-      _ScholarshipDetailScreenState();
-}
-
-class _ScholarshipDetailScreenState
-    extends State<ScholarshipDetailScreen> {
-  bool isSaved = false;
-  bool isLoading = true;
-
-  User? get currentUser => FirebaseAuth.instance.currentUser;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkIfSaved();
-  }
-
-  Future<void> _checkIfSaved() async {
-    final user = currentUser;
-
-    if (user == null) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-      return;
-    }
-
-    final savedDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('saved_scholarships')
-        .doc(widget.documentId)
-        .get();
-
-    if (mounted) {
-      setState(() {
-        isSaved = savedDoc.exists;
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _toggleSave() async {
-    final user = currentUser;
-
-    if (user == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Please login first to save scholarships.',
-            ),
-          ),
-        );
-      }
-      return;
-    }
-
-    final savedRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .collection('saved_scholarships')
-        .doc(widget.documentId);
-
-    try {
-      if (isSaved) {
-        await savedRef.delete();
-
-        if (mounted) {
-          setState(() {
-            isSaved = false;
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Scholarship removed from saved items.',
-              ),
-            ),
-          );
-        }
-      } else {
-        await savedRef.set({
-          'scholarshipId': widget.documentId,
-          'title': widget.data['title'] ?? 'Scholarship',
-          'description': widget.data['description'] ?? '',
-          'field': widget.data['field'] ?? '',
-          'deadline': widget.data['deadline'] ?? '',
-          'eligibility': widget.data['eligibility'] ?? '',
-          'savedAt': FieldValue.serverTimestamp(),
-        });
-
-        if (mounted) {
-          setState(() {
-            isSaved = true;
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Scholarship saved successfully.',
-              ),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Unable to save scholarship: $e',
-            ),
-          ),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final title =
-        (widget.data['title'] ?? 'Scholarship').toString();
-
-    final description =
-        (widget.data['description'] ??
-                'No description available.')
-            .toString();
-
-    final field =
-        (widget.data['field'] ?? 'Not specified').toString();
-
-    final deadline =
-        (widget.data['deadline'] ?? 'Not specified').toString();
-
-    final eligibility =
-        (widget.data['eligibility'] ?? 'Not specified')
-            .toString();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Scholarship Details'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            _buildDetailSection(
-              'Description',
-              description,
-            ),
-
-            _buildDetailSection(
-              'Field',
-              field,
-            ),
-
-            _buildDetailSection(
-              'Deadline',
-              deadline,
-            ),
-
-            _buildDetailSection(
-              'Eligibility',
-              eligibility,
-            ),
-
-            const SizedBox(height: 20),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: isLoading ? null : _toggleSave,
-                icon: Icon(
-                  isSaved
-                      ? Icons.bookmark
-                      : Icons.bookmark_border,
-                ),
-                label: Text(
-                  isSaved
-                      ? 'Saved Scholarship'
-                      : 'Save Scholarship',
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailSection(
-    String title,
-    String value,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ======================================================
-// SAVED SCHOLARSHIPS SCREEN
-// ======================================================
-
-class SavedScholarshipsScreen extends StatelessWidget {
-  const SavedScholarshipsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Saved Scholarships'),
-        ),
-        body: const Center(
-          child: Text(
-            'Please login to view saved scholarships.',
-          ),
-        ),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Saved Scholarships'),
-      ),
-      body: StreamBuilder<
-          QuerySnapshot<Map<String, dynamic>>>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .collection('saved_scholarships')
-            .orderBy(
-              'savedAt',
-              descending: true,
-            )
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState ==
-              ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error loading saved scholarships.\n'
-                '${snapshot.error}',
-                textAlign: TextAlign.center,
-              ),
-            );
-          }
-
-          if (!snapshot.hasData ||
-              snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text(
-                'No saved scholarships yet.',
-              ),
-            );
-          }
-
-          final savedScholarships = snapshot.data!.docs;
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: savedScholarships.length,
-            itemBuilder: (context, index) {
-              final document = savedScholarships[index];
-
-              final data = document.data();
-
-              return Card(
-                margin: const EdgeInsets.only(
-                  bottom: 12,
-                ),
-                child: ListTile(
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.bookmark),
-                  ),
-                  title: Text(
-                    (data['title'] ?? 'Scholarship').toString(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    'Field: '
-                    '${data['field'] ?? 'Not specified'}\n'
-                    'Deadline: '
-                    '${data['deadline'] ?? 'Not specified'}',
-                  ),
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 18,
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ScholarshipDetailScreen(
-                          documentId: document.id,
-                          data: data,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            },
-          );
-        },
       ),
     );
   }

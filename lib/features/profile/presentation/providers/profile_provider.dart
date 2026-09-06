@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../domain/repositories/profile_repository.dart';
@@ -8,6 +9,8 @@ class ProfileProvider with ChangeNotifier {
   final ProfileRepository _profileRepository;
   final ImagePicker _imagePicker;
 
+  Uint8List? _selectedImageBytes;
+  String? _selectedFileName;
   File? _selectedImageFile;
   bool _isUploading = false;
   String? _errorMessage;
@@ -18,6 +21,8 @@ class ProfileProvider with ChangeNotifier {
   })  : _profileRepository = profileRepository ?? ProfileRepositoryImpl(),
         _imagePicker = imagePicker ?? ImagePicker();
 
+  Uint8List? get selectedImageBytes => _selectedImageBytes;
+  String? get selectedFileName => _selectedFileName;
   File? get selectedImageFile => _selectedImageFile;
   bool get isUploading => _isUploading;
   String? get errorMessage => _errorMessage;
@@ -34,7 +39,32 @@ class ProfileProvider with ChangeNotifier {
 
       if (pickedFile == null) return false;
 
-      _selectedImageFile = File(pickedFile.path);
+      final bytes = await pickedFile.readAsBytes();
+      final fileName = pickedFile.name;
+      final ext = fileName.contains('.') ? fileName.split('.').last.toLowerCase() : 'jpg';
+
+      const allowedExts = {'jpg', 'jpeg', 'png', 'webp', 'gif'};
+      if (!allowedExts.contains(ext)) {
+        _errorMessage = 'Invalid file type (.$ext). Only images (JPG, PNG, WEBP, GIF) are allowed.';
+        notifyListeners();
+        return false;
+      }
+
+      if (bytes.length > 2 * 1024 * 1024) {
+        _errorMessage = 'File size exceeds maximum allowed 2 MB for profile avatar.';
+        notifyListeners();
+        return false;
+      }
+
+      _selectedImageBytes = bytes;
+      _selectedFileName = fileName;
+
+      try {
+        _selectedImageFile = File(pickedFile.path);
+      } catch (_) {
+        _selectedImageFile = null;
+      }
+
       notifyListeners();
       return true;
     } catch (e) {
@@ -45,13 +75,19 @@ class ProfileProvider with ChangeNotifier {
   }
 
   void clearSelectedImage() {
+    _selectedImageBytes = null;
+    _selectedFileName = null;
     _selectedImageFile = null;
     _errorMessage = null;
     notifyListeners();
   }
 
-  Future<String?> uploadProfilePicture(String userId) async {
-    if (_selectedImageFile == null) return null;
+  Future<String?> uploadProfilePicture(String userId, {String? oldImageUrl}) async {
+    if (_selectedImageBytes == null) {
+      _errorMessage = 'Please select a profile image first.';
+      notifyListeners();
+      return null;
+    }
 
     _isUploading = true;
     _errorMessage = null;
@@ -60,9 +96,13 @@ class ProfileProvider with ChangeNotifier {
     try {
       final String publicUrl = await _profileRepository.uploadProfilePicture(
         userId: userId,
-        imageFile: _selectedImageFile!,
+        imageBytes: _selectedImageBytes,
+        fileName: _selectedFileName,
+        oldImageUrl: oldImageUrl,
       );
 
+      _selectedImageBytes = null;
+      _selectedFileName = null;
       _selectedImageFile = null;
       _isUploading = false;
       notifyListeners();
@@ -75,3 +115,4 @@ class ProfileProvider with ChangeNotifier {
     }
   }
 }
+

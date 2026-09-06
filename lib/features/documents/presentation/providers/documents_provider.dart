@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -32,17 +33,55 @@ class DocumentsProvider with ChangeNotifier {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['png', 'jpg', 'jpeg', 'pdf'],
+        withData: true,
       );
-      if (result == null || result.files.single.path == null) return false;
+      if (result == null || result.files.isEmpty) return false;
+
+      final platformFile = result.files.single;
+      Uint8List? bytes = platformFile.bytes;
+
+      if (bytes == null && platformFile.path != null) {
+        bytes = await File(platformFile.path!).readAsBytes();
+      }
+
+      if (bytes == null) {
+        _errorMessage = 'Could not read selected document bytes.';
+        notifyListeners();
+        return false;
+      }
+
+      final fileName = platformFile.name;
+      final ext = fileName.contains('.') ? fileName.split('.').last.toLowerCase() : '';
+
+      const allowedExts = {'png', 'jpg', 'jpeg', 'pdf'};
+      if (!allowedExts.contains(ext)) {
+        _errorMessage = 'Invalid document type (.$ext). Only PNG, JPG, JPEG, and PDF documents are allowed.';
+        notifyListeners();
+        return false;
+      }
+
+      if (bytes.length > 10 * 1024 * 1024) {
+        _errorMessage = 'File size exceeds maximum allowed 10 MB for user documents.';
+        notifyListeners();
+        return false;
+      }
 
       _isUploading = true;
       notifyListeners();
 
-      final file = File(result.files.single.path!);
+      File? localFile;
+      if (platformFile.path != null) {
+        try {
+          localFile = File(platformFile.path!);
+        } catch (_) {}
+      }
+
       await _repository.uploadDocument(
         userId: userId,
         documentType: documentType,
-        file: file,
+        file: localFile,
+        fileBytes: bytes,
+        fileName: fileName,
       );
 
       _isUploading = false;
@@ -80,3 +119,4 @@ class DocumentsProvider with ChangeNotifier {
     }
   }
 }
+
