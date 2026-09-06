@@ -63,7 +63,7 @@ class AppShimmerCardList extends StatelessWidget {
       shrinkWrap: true,
       padding: const EdgeInsets.symmetric(vertical: 12),
       itemCount: itemCount,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         return AppShimmer(
           width: double.infinity,

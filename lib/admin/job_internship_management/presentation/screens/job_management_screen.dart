@@ -45,7 +45,7 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
                 TextField(controller: descController, maxLines: 2, decoration: const InputDecoration(labelText: 'Description')),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  value: type,
+                  initialValue: type,
                   items: ['Full-time', 'Part-time', 'Internship', 'Remote']
                       .map((t) => DropdownMenuItem(value: t, child: Text(t)))
                       .toList(),
@@ -56,7 +56,7 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
                 ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  value: status,
+                  initialValue: status,
                   items: ['Open', 'Closed']
                       .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
@@ -92,8 +92,10 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
                   await FirebaseFirestore.instance.collection('jobs').doc(docId).update(data);
                 }
 
-                if (mounted) {
+                if (ctx.mounted) {
                   Navigator.pop(ctx);
+                }
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(docId == null ? 'Job posted!' : 'Job updated!')),
                   );

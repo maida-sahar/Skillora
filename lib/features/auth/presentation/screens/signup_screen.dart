@@ -158,7 +158,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             prefixIcon: Icons.email_outlined,
-                            validator: InputValidators.validateEmail,git add.
+                            validator: InputValidators.validateEmail,
                           ),
                           const SizedBox(height: 16),
 

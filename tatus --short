@@ -1,0 +1,29 @@
+warning: in the working copy of 'lib/admin/career_management/presentation/screens/career_management_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin/job_internship_management/presentation/screens/job_management_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin/mentor_management/presentation/screens/mentor_management_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin/notification_management/presentation/screens/notification_management_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin/reports_analytics/presentation/screens/reports_analytics_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin/scholarship_management/presentation/screens/scholarship_management_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin/skill_management/presentation/screens/skill_management_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin/user_management/presentation/screens/user_management_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/applications/presentation/screens/career_applications_list_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/applications/presentation/screens/deadline_tracker_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/auth/presentation/screens/login_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/auth/presentation/screens/signup_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/documents/presentation/screens/documents_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/features/settings/presentation/screens/settings_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/screens/skill_assessment_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/services/gemini_service.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/shared/widgets/empty_state_widget.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/shared/widgets/loaders/app_shimmer.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin/reports_analytics/presentation/screens/reports_analytics_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/admin/skill_management/presentation/screens/skill_management_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/screens/skill_assessment_screen.dart', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'lib/services/gemini_service.dart', LF will be replaced by CRLF the next time Git touches it
+lib/admin/reports_analytics/presentation/screens/reports_analytics_screen.dart
+lib/admin/skill_management/presentation/screens/skill_management_screen.dart
+lib/config/routes/admin_routes.dart
+lib/config/routes/user_routes.dart
+lib/features/skills/data/models/skill_model.dart
+lib/screens/skill_assessment_screen.dart
+lib/services/gemini_service.dart

@@ -44,7 +44,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
             ElevatedButton(
               onPressed: () async {
-                Navigator.pop(ctx);
+                if (ctx.mounted) {
+                  Navigator.pop(ctx);
+                }
                 await FirebaseFirestore.instance.collection('users').doc(userId).update({
                   'role': newRole,
                   'updatedAt': Timestamp.now(),

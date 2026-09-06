@@ -195,7 +195,7 @@ class _DeadlineTrackerScreenState extends State<DeadlineTrackerScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 scrollDirection: Axis.horizontal,
                 itemCount: _days.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                separatorBuilder: (_, _) => const SizedBox(width: 12),
                 itemBuilder: (context, index) {
                   final isSelected = index == _selectedDayIndex;
                   final dayItem = _days[index];
@@ -303,7 +303,7 @@ class _DeadlineTrackerScreenState extends State<DeadlineTrackerScreen> {
                       child: ListView.separated(
                         physics: const BouncingScrollPhysics(),
                         itemCount: _ongoingTasks.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 14),
+                        separatorBuilder: (_, _) => const SizedBox(height: 14),
                         itemBuilder: (context, index) {
                           final task = _ongoingTasks[index];
                           final bgColor = task['bgColor'] as Color;

@@ -197,7 +197,7 @@ class _CareerApplicationsListScreenState extends State<CareerApplicationsListScr
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _applications.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 14),
+                separatorBuilder: (_, _) => const SizedBox(height: 14),
                 itemBuilder: (context, index) {
                   final item = _applications[index];
                   return _buildApplicationCard(item);

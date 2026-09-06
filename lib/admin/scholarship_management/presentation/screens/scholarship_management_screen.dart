@@ -53,7 +53,7 @@ class _ScholarshipManagementScreenState extends State<ScholarshipManagementScree
                 TextField(controller: urlController, decoration: const InputDecoration(labelText: 'Application URL')),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  value: status,
+                  initialValue: status,
                   items: ['Open', 'Closed', 'Upcoming']
                       .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
@@ -91,8 +91,10 @@ class _ScholarshipManagementScreenState extends State<ScholarshipManagementScree
                   await FirebaseFirestore.instance.collection('scholarships').doc(docId).update(data);
                 }
 
-                if (mounted) {
+                if (ctx.mounted) {
                   Navigator.pop(ctx);
+                }
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(docId == null ? 'Scholarship added!' : 'Scholarship updated!')),
                   );

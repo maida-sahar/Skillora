@@ -46,7 +46,7 @@ class _MentorManagementScreenState extends State<MentorManagementScreen> {
                 TextField(controller: expertiseController, decoration: const InputDecoration(labelText: 'Expertise (comma separated)')),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  value: status,
+                  initialValue: status,
                   items: ['available', 'busy', 'offline']
                       .map((s) => DropdownMenuItem(value: s, child: Text(s.toUpperCase())))
                       .toList(),
@@ -87,8 +87,10 @@ class _MentorManagementScreenState extends State<MentorManagementScreen> {
                   await FirebaseFirestore.instance.collection('mentors').doc(docId).update(data);
                 }
 
-                if (mounted) {
+                if (ctx.mounted) {
                   Navigator.pop(ctx);
+                }
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(docId == null ? 'Mentor added!' : 'Mentor updated!')),
                   );

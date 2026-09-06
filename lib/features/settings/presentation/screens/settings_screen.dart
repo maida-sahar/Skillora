@@ -94,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: Text('In-App Notifications', style: AppTypography.bodyMedium),
                     subtitle: Text('Receive application & deadline updates', style: AppTypography.bodySmall),
                     value: _notificationsEnabled,
-                    activeColor: AppColors.primary,
+                    activeThumbColor: AppColors.primary,
                     onChanged: (val) => setState(() => _notificationsEnabled = val),
                   ),
                 ],

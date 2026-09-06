@@ -69,7 +69,7 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: careerLevel,
+                  initialValue: careerLevel,
                   items: ['Entry Level', 'Mid Level', 'Senior Level', 'Executive']
                       .map((l) => DropdownMenuItem(value: l, child: Text(l)))
                       .toList(),
@@ -110,8 +110,10 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
                   await FirebaseFirestore.instance.collection('careers').doc(docId).update(data);
                 }
 
-                if (mounted) {
+                if (ctx.mounted) {
                   Navigator.pop(ctx);
+                }
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(docId == null ? 'Career created!' : 'Career updated!')),
                   );

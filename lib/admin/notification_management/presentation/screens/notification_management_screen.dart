@@ -45,7 +45,7 @@ class _NotificationManagementScreenState extends State<NotificationManagementScr
                 ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  value: type,
+                  initialValue: type,
                   items: ['general', 'application_update', 'document_status', 'deadline']
                       .map((t) => DropdownMenuItem(value: t, child: Text(t.toUpperCase())))
                       .toList(),
@@ -72,8 +72,10 @@ class _NotificationManagementScreenState extends State<NotificationManagementScr
                   'createdAt': Timestamp.now(),
                 });
 
-                if (mounted) {
+                if (ctx.mounted) {
                   Navigator.pop(ctx);
+                }
+                if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Notification broadcast successfully!')),
                   );
