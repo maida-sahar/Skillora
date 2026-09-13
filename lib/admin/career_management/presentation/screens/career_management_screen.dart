@@ -20,7 +20,15 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
 
   void _showCareerDialog({String? docId, Map<String, dynamic>? initialData}) {
     final titleController = TextEditingController(text: initialData?['title'] ?? '');
-    final categoryController = TextEditingController(text: initialData?['category'] ?? '');
+    final initialCategory = (initialData?['category'] ?? initialData?['field'] ?? '').toString();
+    
+    final standardCategories = ['STEM', 'Business', 'Design', 'Technology', 'Marketing', 'Arts', 'Healthcare', 'Finance'];
+    bool isCustom = initialCategory.isNotEmpty && !standardCategories.contains(initialCategory);
+    String selectedDropdownCategory = isCustom
+        ? 'Custom'
+        : (standardCategories.contains(initialCategory) ? initialCategory : 'STEM');
+    
+    final customCategoryController = TextEditingController(text: isCustom ? initialCategory : '');
     final descriptionController = TextEditingController(text: initialData?['description'] ?? '');
     final educationController = TextEditingController(text: initialData?['education'] ?? '');
     final skillsController = TextEditingController(
@@ -34,7 +42,6 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-
           title: Text(docId == null ? 'Add New Career' : 'Edit Career'),
           content: SingleChildScrollView(
             child: Column(
@@ -45,10 +52,23 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
                   decoration: const InputDecoration(labelText: 'Career Title'),
                 ),
                 const SizedBox(height: 12),
-                TextField(
-                  controller: categoryController,
-                  decoration: const InputDecoration(labelText: 'Category (e.g. Technology, Finance)'),
+                DropdownButtonFormField<String>(
+                  value: selectedDropdownCategory,
+                  items: [...standardCategories, 'Custom']
+                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                      .toList(),
+                  onChanged: (val) {
+                    if (val != null) setDialogState(() => selectedDropdownCategory = val);
+                  },
+                  decoration: const InputDecoration(labelText: 'Field / Category'),
                 ),
+                if (selectedDropdownCategory == 'Custom') ...[
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: customCategoryController,
+                    decoration: const InputDecoration(labelText: 'Specify Custom Field / Category'),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 TextField(
                   controller: descriptionController,
@@ -69,7 +89,7 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  initialValue: careerLevel,
+                  value: careerLevel,
                   items: ['Entry Level', 'Mid Level', 'Senior Level', 'Executive']
                       .map((l) => DropdownMenuItem(value: l, child: Text(l)))
                       .toList(),
@@ -87,6 +107,11 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
               onPressed: () async {
                 if (titleController.text.trim().isEmpty) return;
 
+                final finalCategory = (selectedDropdownCategory == 'Custom'
+                        ? customCategoryController.text.trim()
+                        : selectedDropdownCategory)
+                    .trim();
+
                 final skills = skillsController.text
                     .split(',')
                     .map((s) => s.trim())
@@ -95,7 +120,8 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
 
                 final data = {
                   'title': titleController.text.trim(),
-                  'category': categoryController.text.trim(),
+                  'category': finalCategory,
+                  'field': finalCategory,
                   'description': descriptionController.text.trim(),
                   'education': educationController.text.trim(),
                   'requiredSkills': skills,
@@ -194,7 +220,7 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
 
                   final filtered = docs.where((doc) {
                     final title = (doc.data()['title'] ?? '').toString().toLowerCase();
-                    final cat = (doc.data()['category'] ?? '').toString().toLowerCase();
+                    final cat = (doc.data()['category'] ?? doc.data()['field'] ?? '').toString().toLowerCase();
                     return query.isEmpty || title.contains(query) || cat.contains(query);
                   }).toList();
 
@@ -202,7 +228,6 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
                     return AppEmptyState(
                       title: 'No Careers Available',
                       message: 'No career paths match your query or have been added yet.',
-                      lottieAsset: 'assets/animations/empty_data.json',
                       fallbackIcon: Icons.work_outline,
                       actionText: 'Add Career',
                       onActionPressed: () => _showCareerDialog(),
@@ -216,8 +241,9 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
                       final doc = filtered[index];
                       final data = doc.data();
                       final title = data['title'] ?? 'Career';
-                      final category = data['category'] ?? 'General';
+                      final category = (data['category'] ?? data['field'] ?? '').toString().trim();
                       final level = data['careerLevel'] ?? 'Entry Level';
+                      final hasNoCategory = category.isEmpty;
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -227,7 +253,26 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
                             child: Icon(Icons.work, color: Colors.white),
                           ),
                           title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text('$category • $level'),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${hasNoCategory ? 'Uncategorized' : category} • $level'),
+                              if (hasNoCategory) ...[
+                                const SizedBox(height: 4),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.amber.withValues(alpha: 0.2),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Text(
+                                    '⚠️ No Field Assigned - Edit to assign',
+                                    style: TextStyle(color: Colors.amber, fontSize: 11, fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

@@ -51,20 +51,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: AppColors.backgroundDark,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.softBackgroundGradient,
-        ),
-        child: SafeArea(
+      body: SafeArea(
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -116,42 +113,45 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         children: [
                           // 3D Metallic Lock Illustration (matching reference design)
                           Center(
-                            child: SizedBox(
-                              height: 160,
-                              child: Image.asset(
-                                'assets/images/auth_lock.png',
-                                fit: BoxFit.contain,
-                                errorBuilder: (context, error, stackTrace) => Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    gradient: AppColors.primaryGradient,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Icon(Icons.lock_reset_rounded, color: Colors.white, size: 40),
-                                ),
+                            child: Container(
+                              height: 80,
+                              width: 80,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary.withAlpha(25),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: AppColors.primary.withAlpha(60)),
                               ),
+                              child: const Icon(Icons.lock_reset_rounded, color: AppColors.primary, size: 40),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
                           Text(
                             'Forgot Password',
                             textAlign: TextAlign.center,
                             style: AppTypography.displayMedium.copyWith(
-                              color: AppColors.primaryDark,
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           Text(
                             'Enter your registered email to receive password recovery instructions.',
                             textAlign: TextAlign.center,
                             style: AppTypography.titleMedium.copyWith(
-                              color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                              color: AppColors.textSecondaryDark,
+                              fontSize: 14,
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 28),
 
-                          AppCard(
+                          Container(
                             padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceDark,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(color: AppColors.borderDark),
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -181,7 +181,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               Text(
                                 "Didn't receive the email? ",
                                 style: AppTypography.bodyMedium.copyWith(
-                                  color: isDark ? AppColors.textSecondaryDark : AppColors.textSecondaryLight,
+                                  color: AppColors.textSecondaryDark,
                                 ),
                               ),
                               GestureDetector(
@@ -199,7 +199,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ],
                       ),
                     ),
-            ),
           ),
         ),
       ),

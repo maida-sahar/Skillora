@@ -11,6 +11,11 @@ class RouteNames {
   static const String explore = '/explore';
   static const String profile = '/profile';
   static const String editProfile = '/profile/edit';
+  static const String personalInformation = '/profile/personal-information';
+  static const String education = '/profile/education';
+  static const String achievements = '/profile/achievements';
+  static const String workExperience = '/profile/work-experience';
+  static const String savedItems = '/profile/saved-items';
   static const String skillAssessment = '/skill-assessment';
   static const String assessmentQuiz = '/skill-assessment/quiz';
   static const String careerRecommendations = '/career-recommendations';
@@ -23,11 +28,14 @@ class RouteNames {
   static const String scholarships = '/scholarships';
   static const String scholarshipDetails = '/scholarships/detail';
   static const String scholarshipEligibility = '/scholarship-eligibility';
+  static const String mentors = '/mentors';
+  static const String mentorDetails = '/mentors/detail';
   static const String documents = '/documents';
   static const String applications = '/applications';
   static const String deadlineTracker = '/deadline-tracker';
   static const String mentorship = '/mentorship';
   static const String portfolio = '/portfolio';
+  static const String publicPortfolio = '/portfolio/public';
   static const String jobsInternships = '/jobs-internships';
   static const String jobDetails = '/jobs-internships/detail';
   static const String notifications = '/notifications';

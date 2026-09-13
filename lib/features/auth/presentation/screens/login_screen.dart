@@ -6,22 +6,7 @@ import 'forgot_password_screen.dart';
 import '../../../../core/utils/input_validators.dart';
 import '../../../../shared/widgets/google_logo.dart';
 import '../../../../shared/widgets/inputs/app_text_field.dart';
-
-// Local light-theme palette for this screen. Centralize these in
-// AppColors once the rest of the app is migrated to the light theme —
-// for now they live here so this screen doesn't depend on the old
-// dark tokens (which is what caused the invisible text + mismatched
-// dark card you saw).
-class _LoginColors {
-  static const Color pageBackground = Color(0xFFFFFFFF);
-  static const Color textPrimary = Color(0xFF0F172A); // near-black
-  static const Color textSecondary = Color(0xFF64748B); // muted gray
-  static const Color purple = Color(0xFF6C5CE7);
-  static const Color purpleLight = Color(0xFF8B7CF6);
-  static const Color cardBackground = Color(0xFFFFFFFF);
-  static const Color cardBorder = Color(0xFFEDEBFB);
-  static const Color fieldBorder = Color(0xFFE7E4F8);
-}
+import '../../../../theme/app_colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -58,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.errorMessage!),
-          backgroundColor: const Color(0xFFEF4444),
+          backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -75,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.errorMessage!),
-          backgroundColor: const Color(0xFFEF4444),
+          backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -87,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
-      backgroundColor: _LoginColors.pageBackground,
+      backgroundColor: AppColors.backgroundDark,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -98,23 +83,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Lock badge on a soft purple glow — no white sticker box
+                  // Lock badge on a soft purple glow
                   Center(
                     child: SizedBox(
-                      height: 130,
-                      width: 130,
+                      height: 120,
+                      width: 120,
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
                           Container(
-                            width: 110,
-                            height: 110,
+                            width: 100,
+                            height: 100,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  _LoginColors.purple.withValues(alpha: 0.18),
-                                  _LoginColors.purple.withValues(alpha: 0.0),
+                                  AppColors.primary.withValues(alpha: 0.3),
+                                  AppColors.primary.withValues(alpha: 0.0),
                                 ],
                               ),
                             ),
@@ -123,67 +108,52 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [_LoginColors.purple, _LoginColors.purpleLight],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                              gradient: AppColors.primaryGradient,
                               boxShadow: [
                                 BoxShadow(
-                                  color: _LoginColors.purple.withValues(alpha: 0.35),
+                                  color: AppColors.primary.withValues(alpha: 0.4),
                                   blurRadius: 18,
-                                  offset: const Offset(0, 8),
+                                  offset: const Offset(0, 6),
                                 ),
                               ],
                             ),
-                            child: const Icon(Icons.lock_outline_rounded, color: Colors.white, size: 34),
+                            child: const Icon(Icons.lock_outline_rounded, color: Colors.white, size: 32),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
 
-                  // Fixed: was white text on a white page (invisible).
-                  // Now uses the dark text color so it actually shows.
                   const Text(
                     'SKILLORA',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: 24,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 3.0,
-                      color: _LoginColors.textPrimary,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'Cybernetic Skill Platform',
+                    'Career & Productivity Platform',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: _LoginColors.purple,
+                      color: AppColors.primaryLight,
                     ),
                   ),
                   const SizedBox(height: 24),
 
-                  // Fixed: was a leftover dark navy card sitting on a
-                  // white page. Now a white card with a soft shadow,
-                  // matching the rest of the light theme.
+                  // Dark Card Container
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
-                      color: _LoginColors.cardBackground,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: _LoginColors.cardBorder),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
-                          blurRadius: 24,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
+                      color: AppColors.surfaceDark,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.borderDark),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -193,15 +163,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: _LoginColors.textPrimary,
+                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        const SizedBox(height: 4),
                         const Text(
-                          'Access real-time skill scores, career intelligence & scholarship grants.',
-                          style: TextStyle(fontSize: 12.5, color: _LoginColors.textSecondary, height: 1.4),
+                          'Access real-time career recommendations, scholarships & applications.',
+                          style: TextStyle(fontSize: 12, color: AppColors.textMutedDark, height: 1.4),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
 
                         AppTextField(
                           label: 'Email Address',
@@ -211,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           prefixIcon: Icons.email_outlined,
                           validator: InputValidators.validateEmail,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 14),
 
                         AppTextField(
                           label: 'Password',
@@ -223,13 +193,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                              color: _LoginColors.textSecondary,
+                              color: AppColors.textMutedDark,
                               size: 20,
                             ),
                             onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
 
                         Align(
                           alignment: Alignment.centerRight,
@@ -243,94 +213,80 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                             child: const Text(
                               'Forgot password?',
-                              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: _LoginColors.purple),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Purple gradient primary button
-                        InkWell(
-                          borderRadius: BorderRadius.circular(24),
-                          onTap: authProvider.isLoading ? null : _onLogin,
-                          child: Container(
-                            height: 52,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(24),
-                              gradient: LinearGradient(
-                                colors: [_LoginColors.purple, _LoginColors.purpleLight],
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: _LoginColors.purple.withValues(alpha: 0.35),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
-                            ),
-                            child: Center(
-                              child: authProvider.isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                    )
-                                  : const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Explore Account',
-                                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15),
-                                        ),
-                                        SizedBox(width: 8),
-                                        Icon(Icons.arrow_forward, color: Colors.white, size: 18),
-                                      ],
-                                    ),
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primaryLight),
                             ),
                           ),
                         ),
                         const SizedBox(height: 20),
+
+                        // Solid Purple Primary CTA
+                        ElevatedButton(
+                          onPressed: authProvider.isLoading ? null : _onLogin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size.fromHeight(48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: authProvider.isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Text(
+                                      'Sign In',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 14),
+                                    ),
+                                    SizedBox(width: 6),
+                                    Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16),
+                                  ],
+                                ),
+                        ),
+                        const SizedBox(height: 18),
 
                         Row(
-                          children: [
-                            const Expanded(child: Divider(color: _LoginColors.fieldBorder)),
+                          children: const [
+                            Expanded(child: Divider(color: AppColors.borderDark)),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding: EdgeInsets.symmetric(horizontal: 14),
                               child: Text(
                                 'OR',
-                                style: TextStyle(fontSize: 11, color: _LoginColors.textSecondary, fontWeight: FontWeight.w600),
+                                style: TextStyle(fontSize: 11, color: AppColors.textMutedDark, fontWeight: FontWeight.w600),
                               ),
                             ),
-                            const Expanded(child: Divider(color: _LoginColors.fieldBorder)),
+                            Expanded(child: Divider(color: AppColors.borderDark)),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 18),
 
-                        // Outlined secondary button (light border, not dark)
-                        InkWell(
-                          borderRadius: BorderRadius.circular(24),
-                          onTap: authProvider.isLoading ? null : _onGoogleSignIn,
-                          child: Container(
-                            height: 52,
-                            decoration: BoxDecoration(
+                        // Google Sign-In Dark Button
+                        OutlinedButton(
+                          onPressed: authProvider.isLoading ? null : _onGoogleSignIn,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: const BorderSide(color: AppColors.borderDark, width: 1),
+                            minimumSize: const Size.fromHeight(48),
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: _LoginColors.fieldBorder, width: 1.2),
                             ),
-                            child: const Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  GoogleLogo(size: 18),
-                                  SizedBox(width: 10),
-                                  Text(
-                                    'Continue with Google',
-                                    style: TextStyle(color: _LoginColors.textPrimary, fontWeight: FontWeight.w600, fontSize: 14),
-                                  ),
-                                ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              GoogleLogo(size: 18),
+                              SizedBox(width: 10),
+                              Text(
+                                'Continue with Google',
+                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       ],
@@ -343,7 +299,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       const Text(
                         "Don't have an account? ",
-                        style: TextStyle(fontSize: 13, color: _LoginColors.textSecondary),
+                        style: TextStyle(fontSize: 13, color: AppColors.textMutedDark),
                       ),
                       GestureDetector(
                         onTap: authProvider.isLoading
@@ -355,7 +311,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               },
                         child: const Text(
                           'Sign up',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: _LoginColors.purple),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primaryLight),
                         ),
                       ),
                     ],

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -59,13 +60,20 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
     final String path = '$userId/avatar_${DateTime.now().millisecondsSinceEpoch}.$ext';
 
-    // 1. Upload file to Supabase Storage 'avatars' bucket
-    final String publicUrl = await _supabaseStorageService.uploadImageBytes(
-      _bucket,
-      path,
-      bytes,
-      contentType: 'image/$ext',
-    );
+    // 1. Try uploading file to Supabase Storage 'avatars' bucket
+    String publicUrl;
+    try {
+      publicUrl = await _supabaseStorageService.uploadImageBytes(
+        _bucket,
+        path,
+        bytes,
+        contentType: 'image/$ext',
+      );
+    } catch (e) {
+      // Fallback to base64 Data URI if Supabase Storage CORS/RLS/network fails
+      final base64String = base64Encode(bytes);
+      publicUrl = 'data:image/$ext;base64,$base64String';
+    }
 
     // 2. Update Firestore users collection document with the URL string only
     await _firestoreService.updateDocument('users', userId, {

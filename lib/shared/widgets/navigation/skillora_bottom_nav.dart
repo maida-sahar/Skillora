@@ -24,19 +24,24 @@ class SkilloraBottomNav extends StatelessWidget {
     required this.onTap,
     this.items = const [
       SkilloraBottomNavItem(
-        outlineIcon: Icons.space_dashboard_outlined,
-        activeIcon: Icons.space_dashboard_rounded,
+        outlineIcon: Icons.home_outlined,
+        activeIcon: Icons.home_rounded,
         label: 'Home',
       ),
       SkilloraBottomNavItem(
-        outlineIcon: Icons.auto_graph_outlined,
-        activeIcon: Icons.auto_graph_rounded,
-        label: 'Pathways',
+        outlineIcon: Icons.search_rounded,
+        activeIcon: Icons.search_rounded,
+        label: 'Explore',
       ),
       SkilloraBottomNavItem(
-        outlineIcon: Icons.workspace_premium_outlined,
-        activeIcon: Icons.workspace_premium_rounded,
-        label: 'Skills',
+        outlineIcon: Icons.assignment_outlined,
+        activeIcon: Icons.assignment_rounded,
+        label: 'Applications',
+      ),
+      SkilloraBottomNavItem(
+        outlineIcon: Icons.business_center_outlined,
+        activeIcon: Icons.business_center_rounded,
+        label: 'Portfolio',
       ),
       SkilloraBottomNavItem(
         outlineIcon: Icons.person_outline_rounded,
@@ -49,16 +54,15 @@ class SkilloraBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 72,
+      height: 68,
       decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x0C000000),
-            blurRadius: 20,
-            offset: Offset(0, -4),
+        color: AppColors.navBackgroundDark,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.borderDark,
+            width: 1.0,
           ),
-        ],
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -66,27 +70,29 @@ class SkilloraBottomNav extends StatelessWidget {
           final isSelected = index == currentIndex;
           final item = items[index];
 
-          return GestureDetector(
-            onTap: () => onTap(index),
-            behavior: HitTestBehavior.opaque,
-            child: SizedBox(
-              width: 64,
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => onTap(index),
+              behavior: HitTestBehavior.opaque,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     isSelected ? item.activeIcon : item.outlineIcon,
-                    size: 24,
-                    color: isSelected ? AppColors.primary : AppColors.textSecondaryLight,
+                    size: 22,
+                    color: isSelected ? AppColors.primary : AppColors.textMutedDark,
                   ),
-                  const SizedBox(height: 6),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    height: 4,
-                    width: isSelected ? 16 : 0,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(2),
+                  const SizedBox(height: 3),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      item.label,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        color: isSelected ? Colors.white : AppColors.textMutedDark,
+                      ),
                     ),
                   ),
                 ],

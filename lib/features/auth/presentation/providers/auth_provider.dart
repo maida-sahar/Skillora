@@ -13,6 +13,7 @@ class AuthProvider with ChangeNotifier {
 
   AuthStatus _status = AuthStatus.uninitialized;
   UserModel? _currentUser;
+  bool _hasLoggedInThisSession = false;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -25,7 +26,8 @@ class AuthProvider with ChangeNotifier {
   UserModel? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  bool get isAuthenticated => _status == AuthStatus.authenticated && _currentUser != null;
+  bool get isAuthenticated =>
+      _status == AuthStatus.authenticated && _currentUser != null && _hasLoggedInThisSession;
 
   void _initAuthListener() {
     _authSubscription = _authRepository.authStateChanges.listen((user) {
@@ -34,6 +36,7 @@ class AuthProvider with ChangeNotifier {
         _status = AuthStatus.authenticated;
       } else {
         _currentUser = null;
+        _hasLoggedInThisSession = false;
         _status = AuthStatus.unauthenticated;
       }
       _isLoading = false;
@@ -41,6 +44,7 @@ class AuthProvider with ChangeNotifier {
     }, onError: (error) {
       _status = AuthStatus.unauthenticated;
       _currentUser = null;
+      _hasLoggedInThisSession = false;
       _errorMessage = error.toString();
       _isLoading = false;
       notifyListeners();
@@ -53,6 +57,7 @@ class AuthProvider with ChangeNotifier {
     try {
       _currentUser = await _authRepository.signInWithEmailAndPassword(email, password);
       _status = AuthStatus.authenticated;
+      _hasLoggedInThisSession = true;
       _setLoading(false);
       return true;
     } on AuthException catch (e) {
@@ -78,6 +83,7 @@ class AuthProvider with ChangeNotifier {
         password: password,
       );
       _status = AuthStatus.authenticated;
+      _hasLoggedInThisSession = true;
       _setLoading(false);
       return true;
     } on AuthException catch (e) {
@@ -101,6 +107,7 @@ class AuthProvider with ChangeNotifier {
       }
       _currentUser = user;
       _status = AuthStatus.authenticated;
+      _hasLoggedInThisSession = true;
       _setLoading(false);
       return true;
     } on AuthException catch (e) {
@@ -133,6 +140,7 @@ class AuthProvider with ChangeNotifier {
     try {
       await _authRepository.signOut();
       _currentUser = null;
+      _hasLoggedInThisSession = false;
       _status = AuthStatus.unauthenticated;
     } catch (e) {
       _setError('Sign out failed: ${e.toString()}');
@@ -146,6 +154,16 @@ class AuthProvider with ChangeNotifier {
       _currentUser = _currentUser!.copyWith(avatarUrl: avatarUrl);
       notifyListeners();
     }
+  }
+
+  Future<void> refreshUserData() async {
+    try {
+      final updatedUser = await _authRepository.getCurrentUserData();
+      if (updatedUser != null) {
+        _currentUser = updatedUser;
+        notifyListeners();
+      }
+    } catch (_) {}
   }
 
   void _setLoading(bool loading) {

@@ -5,20 +5,17 @@ import '../../../auth/presentation/providers/auth_provider.dart';
 import '../providers/profile_provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_typography.dart';
-import '../../../../shared/widgets/cards/app_card.dart';
-import '../../../../shared/widgets/chips/app_chip.dart';
-import '../../../../shared/widgets/buttons/custom_button.dart';
+import '../../../../config/routes/route_names.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   void _showImagePickerModal(BuildContext context) {
     final profileProvider = Provider.of<ProfileProvider>(context, listen: false);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+      backgroundColor: AppColors.surfaceDark,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -30,14 +27,12 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Text(
                 'Update Profile Picture',
-                style: AppTypography.titleMedium.copyWith(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-                ),
+                style: AppTypography.titleMedium.copyWith(color: Colors.white),
               ),
               const SizedBox(height: 16),
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined, color: AppColors.primary),
-                title: Text('Choose from Gallery', style: AppTypography.bodyMedium),
+                title: Text('Choose from Gallery', style: AppTypography.bodyMedium.copyWith(color: Colors.white)),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   final ok = await profileProvider.pickImage(ImageSource.gallery);
@@ -53,7 +48,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.camera_alt_outlined, color: AppColors.primary),
-                title: Text('Take Photo with Camera', style: AppTypography.bodyMedium),
+                title: Text('Take Photo with Camera', style: AppTypography.bodyMedium.copyWith(color: Colors.white)),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   final ok = await profileProvider.pickImage(ImageSource.camera);
@@ -105,211 +100,294 @@ class ProfileScreen extends StatelessWidget {
     final authProvider = Provider.of<AuthProvider>(context);
     final profileProvider = Provider.of<ProfileProvider>(context);
     final user = authProvider.currentUser;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (user == null) {
-      return const Scaffold(
-        body: Center(child: Text('User not authenticated.')),
-      );
-    }
+    final name = (user?.displayName.isNotEmpty == true)
+        ? user!.displayName
+        : (user?.email.isNotEmpty == true ? user!.email.split('@').first : 'User');
+    final userAvatar = (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty)
+        ? user.avatarUrl!
+        : '';
 
     final selectedBytes = profileProvider.selectedImageBytes;
 
+    final List<Map<String, dynamic>> menuItems = [
+      {
+        'title': 'Personal information',
+        'icon': Icons.person_outline_rounded,
+        'route': RouteNames.personalInformation,
+      },
+      {
+        'title': 'Education',
+        'icon': Icons.school_outlined,
+        'route': RouteNames.education,
+      },
+      {
+        'title': 'Skills & interests',
+        'icon': Icons.stars_outlined,
+        'route': RouteNames.skillAssessment,
+      },
+      {
+        'title': 'Work experience',
+        'icon': Icons.work_outline_rounded,
+        'route': RouteNames.workExperience,
+      },
+      {
+        'title': 'Achievements',
+        'icon': Icons.workspace_premium_outlined,
+        'route': RouteNames.achievements,
+      },
+      {
+        'title': 'Saved items',
+        'icon': Icons.bookmark_border_rounded,
+        'route': RouteNames.savedItems,
+      },
+    ];
+
     return Scaffold(
-      backgroundColor: isDark ? AppColors.backgroundDark : AppColors.backgroundLight,
-      appBar: AppBar(
-        title: Text('User Profile', style: AppTypography.titleLarge),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout_rounded, color: AppColors.error),
-            tooltip: 'Logout',
-            onPressed: () => authProvider.signOut(),
-          ),
-        ],
-      ),
+      backgroundColor: AppColors.backgroundDark,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Avatar & Profile Header Card
-              AppCard(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Center(
-                      child: Stack(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: AppColors.primaryGradient,
-                            ),
-                            child: CircleAvatar(
-                              radius: 56,
-                              backgroundColor: isDark ? AppColors.cardDark : AppColors.softBlue,
-                              backgroundImage: selectedBytes != null
-                                  ? MemoryImage(selectedBytes) as ImageProvider
-                                  : (user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-                                      ? NetworkImage(user.avatarUrl!)
-                                      : null),
-                              child: (selectedBytes == null && (user.avatarUrl == null || user.avatarUrl!.isEmpty))
-                                  ? Text(
-                                      user.displayName.isNotEmpty ? user.displayName[0].toUpperCase() : 'U',
-                                      style: AppTypography.displayMedium.copyWith(color: AppColors.primary),
-                                    )
-                                  : null,
+              // Header Title "Profile" & Settings Gear Icon
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      if (Navigator.canPop(context)) ...[
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.surfaceDark,
+                            padding: const EdgeInsets.all(8),
+                            minimumSize: const Size(40, 40),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              side: const BorderSide(color: AppColors.borderDark),
                             ),
                           ),
-                          if (profileProvider.isUploading)
-                            Positioned.fill(
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  color: Colors.black45,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Center(
-                                  child: CircularProgressIndicator(color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: InkWell(
-                              onTap: profileProvider.isUploading ? null : () => _showImagePickerModal(context),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 18),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    if (selectedBytes != null) ...[
+                        ),
+                        const SizedBox(width: 10),
+                      ],
                       Text(
-                        'New image selected',
-                        style: AppTypography.labelMedium.copyWith(color: AppColors.info),
+                        'Profile',
+                        style: AppTypography.displayLarge.copyWith(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          OutlinedButton(
-                            onPressed: profileProvider.isUploading ? null : () => profileProvider.clearSelectedImage(),
-                            child: const Text('Cancel'),
-                          ),
-                          const SizedBox(width: 12),
-                          CustomButton(
-                            text: 'Upload',
-                            height: 40,
-                            onPressed: profileProvider.isUploading ? null : () => _uploadImage(context, user.id, user.avatarUrl),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
                     ],
-
-                    Text(
-                      user.displayName,
-                      style: AppTypography.displayMedium.copyWith(
-                        color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pushNamed(context, RouteNames.settings),
+                    icon: const Icon(
+                      Icons.settings_outlined,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.surfaceDark,
+                      padding: const EdgeInsets.all(8),
+                      minimumSize: const Size(40, 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: const BorderSide(color: AppColors.borderDark),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user.email,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: isDark ? AppColors.textMutedDark : AppColors.textSecondaryLight,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    AppChip(
-                      label: 'Role: ${user.role.toUpperCase()}',
-                      variant: AppChipVariant.primary,
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
 
-              // Details List Cards
-              AppCard(
-                padding: const EdgeInsets.all(18),
-                child: Column(
+              const SizedBox(height: 24),
+
+              // Profile Section (Avatar, Name, Title, Location, Edit Profile Button)
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.borderDark, width: 2),
+                    ),
+                    child: CircleAvatar(
+                      radius: 44,
+                      backgroundColor: AppColors.surfaceDark,
+                      backgroundImage: selectedBytes != null
+                          ? MemoryImage(selectedBytes) as ImageProvider
+                          : (userAvatar.isNotEmpty ? NetworkImage(userAvatar) : null),
+                      child: (selectedBytes == null && userAvatar.isEmpty)
+                          ? const Icon(Icons.person_rounded, size: 44, color: AppColors.textMutedDark)
+                          : null,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: profileProvider.isUploading ? null : () => _showImagePickerModal(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 14),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              if (selectedBytes != null) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildInfoRow(
-                      context,
-                      icon: Icons.school_outlined,
-                      title: 'Education Field',
-                      value: user.educationField ?? 'Not specified',
+                    TextButton(
+                      onPressed: () => profileProvider.clearSelectedImage(),
+                      child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
                     ),
-                    const Divider(height: 24),
-                    _buildInfoRow(
-                      context,
-                      icon: Icons.stars_outlined,
-                      title: 'Skills',
-                      value: user.skillsList.isNotEmpty ? user.skillsList.join(', ') : 'No skills added yet',
+                    ElevatedButton(
+                      onPressed: () => _uploadImage(context, user?.id ?? '', user?.avatarUrl),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        minimumSize: const Size(80, 34),
+                      ),
+                      child: const Text('Upload'),
                     ),
                   ],
                 ),
+                const SizedBox(height: 10),
+              ],
+
+              Text(
+                name,
+                style: AppTypography.displayMedium.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
               ),
+              if (user?.educationField != null && user!.educationField!.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  user.educationField!,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: AppColors.textMutedDark,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+              if (user?.careerGoalsList.isNotEmpty == true) ...[
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.work_outline, size: 14, color: AppColors.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      user!.careerGoalsList.first,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppColors.textMutedDark,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+
+              const SizedBox(height: 16),
+
+              // Edit Profile Button
+              ElevatedButton(
+                onPressed: () => Navigator.pushNamed(context, RouteNames.personalInformation),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(120, 36),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  elevation: 0,
+                ),
+                child: Text(
+                  'Edit profile',
+                  style: AppTypography.labelMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 28),
+
+              // Section Menu Card Container
+              Container(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceDark,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.borderDark, width: 1),
+                ),
+                child: Column(
+                  children: List.generate(menuItems.length, (index) {
+                    final item = menuItems[index];
+                    final isLast = index == menuItems.length - 1;
+
+                    return Column(
+                      children: [
+                        ListTile(
+                          onTap: () {
+                            if (item['route'] != null) {
+                              Navigator.pushNamed(context, item['route'] as String);
+                            }
+                          },
+                          leading: Icon(
+                            item['icon'] as IconData,
+                            color: AppColors.textMutedDark,
+                            size: 20,
+                          ),
+                          title: Text(
+                            item['title'] as String,
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          trailing: const Icon(
+                            Icons.chevron_right_rounded,
+                            color: AppColors.textMutedDark,
+                            size: 20,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                        ),
+                        if (!isLast)
+                          const Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: AppColors.borderDark,
+                            indent: 16,
+                            endIndent: 16,
+                          ),
+                      ],
+                    );
+                  }),
+                ),
+              ),
+
+              const SizedBox(height: 24),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildInfoRow(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String value,
-  }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.softBlue,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: AppColors.primary, size: 22),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTypography.titleSmall.copyWith(
-                  color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                value,
-                style: AppTypography.bodySmall.copyWith(
-                  color: isDark ? AppColors.textMutedDark : AppColors.textSecondaryLight,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

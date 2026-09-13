@@ -12,23 +12,37 @@ class ApplicationManagementScreen extends StatefulWidget {
 class _ApplicationManagementScreenState extends State<ApplicationManagementScreen> {
   String _statusFilter = 'All';
 
+  static const List<String> _defaultStatuses = [
+    'Applied',
+    'In progress',
+    'Under Review',
+    'Interview',
+    'Accepted',
+    'Rejected',
+  ];
+
   Future<void> _updateStatus(String docId, String currentStatus, String? currentNotes) async {
     String newStatus = currentStatus;
     final notesController = TextEditingController(text: currentNotes ?? '');
+
+    final Set<String> statusSet = Set<String>.from(_defaultStatuses);
+    if (currentStatus.isNotEmpty) {
+      statusSet.add(currentStatus);
+    }
+    final statusList = statusSet.toList();
 
     await showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-
           title: const Text('Update Application Status'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
-                  value: newStatus,
-                  items: ['Applied', 'Under Review', 'Interview', 'Accepted', 'Rejected']
+                  value: statusList.contains(newStatus) ? newStatus : statusList.first,
+                  items: statusList
                       .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
                   onChanged: (val) {
@@ -93,7 +107,7 @@ class _ApplicationManagementScreenState extends State<ApplicationManagementScree
                     child: SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: ['All', 'Applied', 'Under Review', 'Accepted', 'Rejected'].map((status) {
+                        children: ['All', 'Applied', 'In progress', 'Under Review', 'Accepted', 'Rejected'].map((status) {
                           return Padding(
                             padding: const EdgeInsets.only(right: 6.0),
                             child: ChoiceChip(
@@ -174,6 +188,7 @@ class _ApplicationManagementScreenState extends State<ApplicationManagementScree
       case 'Accepted': return Colors.green;
       case 'Rejected': return Colors.red;
       case 'Under Review': return Colors.orange;
+      case 'In progress': return Colors.amber;
       default: return Colors.blue;
     }
   }
@@ -183,6 +198,7 @@ class _ApplicationManagementScreenState extends State<ApplicationManagementScree
       case 'Accepted': return Icons.check_circle;
       case 'Rejected': return Icons.cancel;
       case 'Under Review': return Icons.hourglass_top;
+      case 'In progress': return Icons.autorenew;
       default: return Icons.assignment;
     }
   }

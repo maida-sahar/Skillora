@@ -1,111 +1,96 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_typography.dart';
-import '../../../../shared/widgets/cards/pastel_stat_tile.dart';
 import '../../../../config/routes/route_names.dart';
+import '../../../../shared/widgets/empty_state_widget.dart';
+import '../providers/auth_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  int _activeCareerIndex = 0;
+
+  @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final user = authProvider.currentUser;
+    final userName = (user?.displayName.isNotEmpty == true) ? user!.displayName.split(' ').first : 'User';
+    final userAvatar = (user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty)
+        ? user.avatarUrl!
+        : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=256&auto=format&fit=crop';
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.backgroundDark,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top Header Row
+              // Top Bar Header with Avatar & App Name & Notification Icon
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Date, Greeting, and Deadlines
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Monday, 25 October',
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.textMutedLight,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Hi, Maida',
-                        style: AppTypography.displayLarge.copyWith(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.headingDark,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Container(
-                            width: 6,
-                            height: 6,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            '3 deadlines this week',
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: AppColors.textSecondaryLight,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  // Search Icon & Circular Avatar Top Right
                   Row(
                     children: [
-                      IconButton(
-                        onPressed: () {
-                          // Open search dialog / route
-                        },
-                        icon: const Icon(
-                          Icons.search_rounded,
-                          color: AppColors.headingDark,
-                          size: 24,
+                      Container(
+                        padding: const EdgeInsets.all(1.5),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.primary, width: 1.5),
                         ),
-                        style: IconButton.styleFrom(
-                          backgroundColor: const Color(0xFFF1F5F9),
-                          padding: const EdgeInsets.all(10),
+                        child: CircleAvatar(
+                          radius: 16,
+                          backgroundColor: AppColors.surfaceDark,
+                          backgroundImage: NetworkImage(userAvatar),
                         ),
                       ),
                       const SizedBox(width: 10),
-
-                      // Avatar photo with thin white ring
-                      Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                      Text(
+                        'Skillora',
+                        style: AppTypography.titleLarge.copyWith(
                           color: Colors.white,
-                          border: Border.all(color: Colors.white, width: 2),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x14000000),
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
                         ),
-                        child: const CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Color(0xFFE2E8F0),
-                          backgroundImage: NetworkImage(
-                            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=256&auto=format&fit=crop',
+                      ),
+                    ],
+                  ),
+                  Stack(
+                    children: [
+                      IconButton(
+                        onPressed: () => Navigator.pushNamed(context, RouteNames.notifications),
+                        icon: const Icon(
+                          Icons.notifications_none_rounded,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                        style: IconButton.styleFrom(
+                          backgroundColor: AppColors.surfaceDark,
+                          padding: const EdgeInsets.all(8),
+                          minimumSize: const Size(40, 40),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: const BorderSide(color: AppColors.borderDark),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          width: 7,
+                          height: 7,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
                           ),
                         ),
                       ),
@@ -114,252 +99,486 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // Featured Purple Gradient Hero Card (Top Priority)
+              // Greeting & Subtitle
+              Text(
+                'Good morning, $userName 👋',
+                style: AppTypography.displayLarge.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'What do you want to learn today?',
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.textMutedDark,
+                  fontSize: 14,
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Rounded Search Bar
               Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(22),
+                height: 50,
                 decoration: BoxDecoration(
-                  gradient: AppColors.heroCardGradient,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+                  color: AppColors.surfaceDark,
+                  borderRadius: BorderRadius.circular(25),
+                  border: Border.all(color: AppColors.borderDark, width: 1),
+                ),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 16),
+                    const Icon(
+                      Icons.search_rounded,
+                      color: AppColors.textMutedDark,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        onSubmitted: (val) {
+                          Navigator.pushNamed(context, RouteNames.explore);
+                        },
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        decoration: InputDecoration(
+                          hintText: 'Search careers, skills or pathways...',
+                          hintStyle: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.textMutedDark,
+                            fontSize: 13,
+                          ),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
+                          isDense: true,
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Badge Tag "New"
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.22),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 6,
-                                height: 6,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF34D399),
-                                  shape: BoxShape.circle,
+              ),
+
+              const SizedBox(height: 26),
+
+              // Recommended Careers Header
+              _buildSectionHeader(
+                title: 'Recommended careers',
+                onSeeAll: () => Navigator.pushNamed(context, RouteNames.explore),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Recommended Careers Horizontal Cards (Real-time Firestore)
+              StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: FirebaseFirestore.instance.collection('careers').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox(
+                      height: 180,
+                      child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                    );
+                  }
+
+                  final docs = snapshot.data?.docs ?? [];
+
+                  if (docs.isEmpty) {
+                    return Container(
+                      height: 180,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceDark,
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: AppColors.borderDark),
+                      ),
+                      child: const AppEmptyState(
+                        title: 'No careers available yet',
+                        message: 'Careers created by admin will appear here dynamically.',
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    children: [
+                      SizedBox(
+                        height: 224,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: docs.length,
+                          separatorBuilder: (_, __) => const SizedBox(width: 14),
+                          itemBuilder: (context, index) {
+                            final doc = docs[index];
+                            final item = doc.data();
+                            final title = item['title'] as String? ?? 'Career';
+                            final description = item['description'] as String? ?? '';
+                            final category = item['category'] as String? ?? 'General';
+                            final image = item['image'] as String? ??
+                                'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=600&auto=format&fit=crop';
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(
+                                  context,
+                                  RouteNames.careerDetails,
+                                  arguments: doc.id,
+                                );
+                              },
+                              child: Container(
+                                width: 200,
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceDark,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: AppColors.borderDark, width: 1),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Stack(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+                                          child: Image.network(
+                                            image,
+                                            height: 100,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => Container(
+                                              height: 100,
+                                              color: const Color(0xFF262836),
+                                              child: const Icon(Icons.work_outline_rounded, color: Colors.white54),
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('Saved to Bookmarks'),
+                                                  backgroundColor: AppColors.primary,
+                                                  duration: Duration(seconds: 1),
+                                                ),
+                                              );
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(5),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withValues(alpha: 0.5),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: const Icon(
+                                                Icons.bookmark_border_rounded,
+                                                color: Colors.white,
+                                                size: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            title,
+                                            style: AppTypography.titleMedium.copyWith(
+                                              color: Colors.white,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            description,
+                                            style: AppTypography.bodySmall.copyWith(
+                                              color: AppColors.textMutedDark,
+                                              fontSize: 11,
+                                              height: 1.3,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.pastelPurpleBg,
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              category,
+                                              style: AppTypography.labelSmall.copyWith(
+                                                color: AppColors.pastelPurpleText,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                'New Priority',
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
+                            );
+                          },
                         ),
-                        const Icon(
-                          Icons.bookmark_outline_rounded,
-                          color: Colors.white,
-                          size: 20,
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(docs.length.clamp(0, 5), (index) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
+                            width: index == _activeCareerIndex ? 16 : 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: index == _activeCareerIndex ? AppColors.primary : AppColors.borderDark,
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                          );
+                        }),
+                      ),
+                    ],
+                  );
+                },
+              ),
+
+              const SizedBox(height: 26),
+
+              // Upcoming Deadlines Header
+              _buildSectionHeader(
+                title: 'Upcoming deadlines',
+                onSeeAll: () => Navigator.pushNamed(context, RouteNames.applications),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Upcoming Deadlines Real-time Firestore Stream
+              Builder(
+                builder: (context) {
+                  final userId = user?.id;
+                  return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: (userId == null || userId.isEmpty)
+                        ? null
+                        : (authProvider.currentUser?.role == 'admin'
+                            ? FirebaseFirestore.instance.collection('applications').snapshots()
+                            : FirebaseFirestore.instance
+                                .collection('applications')
+                                .where('userId', isEqualTo: userId)
+                                .snapshots()),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SizedBox(
+                          height: 80,
+                          child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                        );
+                      }
+
+                      final docs = (snapshot.data?.docs ?? []).where((doc) {
+                        final data = doc.data();
+                        return userId == null || data['userId'] == userId;
+                      }).toList();
+
+                  if (docs.isEmpty) {
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceDark,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.borderDark),
+                      ),
+                      child: const AppEmptyState(
+                        title: 'No upcoming deadlines',
+                        message: 'Your active deadlines will appear here once you apply.',
+                      ),
+                    );
+                  }
+
+                  return Column(
+                    children: docs.map((doc) {
+                      final data = doc.data();
+                      final title = data['title'] as String? ?? data['careerTitle'] as String? ?? 'Application';
+                      final subtitle = data['company'] as String? ?? data['organization'] as String? ?? 'Skillora';
+                      final Timestamp? deadlineTs = data['deadlineDate'] as Timestamp? ?? data['deadline'] as Timestamp?;
+
+                      String badgeText = 'Active';
+                      bool isDanger = false;
+                      if (deadlineTs != null) {
+                        final diff = deadlineTs.toDate().difference(DateTime.now()).inDays;
+                        if (diff < 0) {
+                          badgeText = 'Closed';
+                          isDanger = true;
+                        } else {
+                          badgeText = '${diff}d left';
+                          isDanger = diff <= 7;
+                        }
+                      }
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceDark,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.borderDark, width: 1),
                         ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    // Top Priority Title
-                    Text(
-                      'Skill Assessment: Frontend Development',
-                      style: AppTypography.displayMedium.copyWith(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        height: 1.3,
-                      ),
-                    ),
-
-                    const SizedBox(height: 6),
-                    Text(
-                      'Complete your assessment to earn your verified proficiency badge.',
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: Colors.white.withValues(alpha: 0.85),
-                        fontSize: 13,
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Row of overlapping avatar circles & action button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Overlapping Avatars
-                        Row(
+                        child: Row(
                           children: [
-                            SizedBox(
-                              width: 72,
-                              height: 30,
-                              child: Stack(
-                                children: const [
-                                  Positioned(
-                                    left: 0,
-                                    child: CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: Colors.white,
-                                      child: CircleAvatar(
-                                        radius: 12,
-                                        backgroundImage: NetworkImage(
-                                          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=128&auto=format&fit=crop',
-                                        ),
-                                      ),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppColors.pastelPurpleBg,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.assignment_outlined,
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    title,
+                                    style: AppTypography.titleMedium.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                  Positioned(
-                                    left: 18,
-                                    child: CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: Colors.white,
-                                      child: CircleAvatar(
-                                        radius: 12,
-                                        backgroundImage: NetworkImage(
-                                          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=128&auto=format&fit=crop',
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    left: 36,
-                                    child: CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: Colors.white,
-                                      child: CircleAvatar(
-                                        radius: 12,
-                                        backgroundImage: NetworkImage(
-                                          'https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=128&auto=format&fit=crop',
-                                        ),
-                                      ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    subtitle,
+                                    style: AppTypography.bodySmall.copyWith(
+                                      color: AppColors.textMutedDark,
+                                      fontSize: 12,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
-                            Text(
-                              '+4 peers enrolled',
-                              style: AppTypography.bodySmall.copyWith(
-                                color: Colors.white.withValues(alpha: 0.9),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 11,
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: isDanger ? const Color(0x2EEF4444) : AppColors.pastelPurpleBg,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                badgeText,
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: isDanger ? const Color(0xFFF87171) : AppColors.pastelPurpleText,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ],
                         ),
+                      );
+                    }).toList(),
+                  );
+                },
+              );
+            },
+          ),
 
-                        // Start Assessment CTA
-                        ElevatedButton(
-                          onPressed: () => Navigator.of(context).pushNamed(RouteNames.skillAssessment),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: AppColors.primary,
-                            elevation: 0,
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                            minimumSize: Size.zero,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+              const SizedBox(height: 26),
+
+              // Mentors For You Header
+              _buildSectionHeader(
+                title: 'Mentors for you',
+                onSeeAll: () => Navigator.pushNamed(context, RouteNames.explore),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Mentors Avatars Row (Real-time Firestore Stream)
+              StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: FirebaseFirestore.instance.collection('mentors').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox(
+                      height: 80,
+                      child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                    );
+                  }
+
+                  final docs = snapshot.data?.docs ?? [];
+
+                  if (docs.isEmpty) {
+                    return Container(
+                      height: 100,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceDark,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.borderDark),
+                      ),
+                      child: const AppEmptyState(
+                        title: 'No mentors available',
+                        message: 'Mentors added by admin will appear here.',
+                      ),
+                    );
+                  }
+
+                  return SizedBox(
+                    height: 110,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: docs.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 20),
+                      itemBuilder: (context, index) {
+                        final mentor = docs[index].data();
+                        final name = mentor['name'] as String? ?? 'Mentor';
+                        final role = mentor['title'] as String? ?? mentor['bio'] as String? ?? 'Advisor';
+                        final avatar = mentor['avatarUrl'] as String? ??
+                            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop';
+
+                        return Column(
+                          children: [
+                            CircleAvatar(
+                              radius: 28,
+                              backgroundColor: AppColors.surfaceDark,
+                              backgroundImage: NetworkImage(avatar),
                             ),
-                          ),
-                          child: Row(
-                            children: [
-                              Text(
-                                'Start',
-                                style: AppTypography.labelLarge.copyWith(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
+                            const SizedBox(height: 6),
+                            Text(
+                              name,
+                              style: AppTypography.bodySmall.copyWith(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                               ),
-                              const SizedBox(width: 4),
-                              const Icon(
-                                Icons.arrow_forward_rounded,
-                                color: AppColors.primary,
-                                size: 14,
+                            ),
+                            Text(
+                              role,
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppColors.textMutedDark,
+                                fontSize: 10,
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
+                            ),
+                          ],
+                        );
+                      },
                     ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              // Section Header "Monthly Overview"
-              Text(
-                'Monthly Overview',
-                style: AppTypography.displayMedium.copyWith(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.headingDark,
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // 2x2 Grid of Colored Stat Tiles
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 14,
-                crossAxisSpacing: 14,
-                childAspectRatio: 1.35,
-                children: [
-                  // Teal Tile: "22 / Skills Completed"
-                  PastelStatTile(
-                    value: '22',
-                    label: 'Skills Completed',
-                    icon: Icons.check_circle_outline_rounded,
-                    variant: PastelTileVariant.mint,
-                    onTap: () {},
-                  ),
-
-                  // Orange Tile: "7 / In Progress"
-                  PastelStatTile(
-                    value: '7',
-                    label: 'In Progress',
-                    icon: Icons.timelapse_rounded,
-                    variant: PastelTileVariant.orange,
-                    onTap: () {},
-                  ),
-
-                  // Pink Tile: "12 / Applications Sent"
-                  PastelStatTile(
-                    value: '12',
-                    label: 'Applications Sent',
-                    icon: Icons.send_rounded,
-                    variant: PastelTileVariant.pink,
-                    onTap: () => Navigator.of(context).pushNamed(RouteNames.applications),
-                  ),
-
-                  // Sky Blue Tile: "14 / Awaiting Review"
-                  PastelStatTile(
-                    value: '14',
-                    label: 'Awaiting Review',
-                    icon: Icons.hourglass_top_rounded,
-                    variant: PastelTileVariant.blue,
-                    onTap: () {},
-                  ),
-                ],
+                  );
+                },
               ),
 
               const SizedBox(height: 24),
@@ -367,6 +586,33 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildSectionHeader({required String title, required VoidCallback onSeeAll}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: AppTypography.titleLarge.copyWith(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        GestureDetector(
+          onTap: onSeeAll,
+          child: Text(
+            'See all',
+            style: AppTypography.labelMedium.copyWith(
+              color: AppColors.primary,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
