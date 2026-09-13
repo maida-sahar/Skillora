@@ -1,0 +1,5 @@
+{
+  "buildCommand": "bash build.sh",
+  "outputDirectory": "build/web",
+  "installCommand": "echo 'Skipping default install — handled in build.sh'"
+}
