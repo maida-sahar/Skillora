@@ -210,10 +210,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
               // Real-time Stream for User Saved Items (State Source of Truth)
               StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                stream: FirebaseFirestore.instance
-                    .collection('saved_items')
-                    .where('userId', isEqualTo: currentUserId ?? '')
-                    .snapshots(),
+                stream: (currentUserId == null || currentUserId.isEmpty)
+                    ? null
+                    : FirebaseFirestore.instance
+                        .collection('saved_items')
+                        .where('userId', isEqualTo: currentUserId)
+                        .snapshots(),
                 builder: (context, savedSnapshot) {
                   final Map<String, String> savedItemMap = {};
                   if (savedSnapshot.hasData && savedSnapshot.data != null) {
@@ -233,6 +235,36 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 40),
                       child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceDark,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.error),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.error_outline_rounded, color: AppColors.error, size: 36),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Error loading ${_categories[_selectedCategoryIndex]}',
+                            style: AppTypography.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            '${snapshot.error}',
+                            style: AppTypography.bodySmall.copyWith(color: AppColors.error),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     );
                   }
 

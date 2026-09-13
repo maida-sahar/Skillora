@@ -59,6 +59,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     }
 
     final String path = '$userId/avatar_${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final String mimeType = (ext == 'jpg' || ext == 'jpeg') ? 'image/jpeg' : 'image/$ext';
 
     // 1. Try uploading file to Supabase Storage 'avatars' bucket
     String publicUrl;
@@ -67,12 +68,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
         _bucket,
         path,
         bytes,
-        contentType: 'image/$ext',
+        contentType: mimeType,
       );
     } catch (e) {
       // Fallback to base64 Data URI if Supabase Storage CORS/RLS/network fails
       final base64String = base64Encode(bytes);
-      publicUrl = 'data:image/$ext;base64,$base64String';
+      publicUrl = 'data:$mimeType;base64,$base64String';
     }
 
     // 2. Update Firestore users collection document with the URL string only

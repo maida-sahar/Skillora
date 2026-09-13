@@ -59,13 +59,14 @@ class PortfolioRepositoryImpl implements PortfolioRepository {
 
     final String folder = projectId != null && projectId.isNotEmpty ? '$userId/$projectId' : userId;
     final String path = '$folder/portfolio_${DateTime.now().millisecondsSinceEpoch}.$ext';
+    final String mimeType = (ext == 'jpg' || ext == 'jpeg') ? 'image/jpeg' : 'image/$ext';
 
     // Upload to Supabase 'portfolio-assets' public bucket
     final String publicUrl = await _supabaseStorageService.uploadImageBytes(
       _bucket,
       path,
       bytes,
-      contentType: 'image/$ext',
+      contentType: mimeType,
     );
 
     return publicUrl;

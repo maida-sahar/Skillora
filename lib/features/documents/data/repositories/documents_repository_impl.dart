@@ -53,7 +53,11 @@ class DocumentsRepositoryImpl implements DocumentsRepository {
       }
 
       final ext = resolvedName.split('.').last.toLowerCase();
-      final mimeType = ext == 'pdf' ? 'application/pdf' : 'image/$ext';
+      final mimeType = ext == 'pdf'
+          ? 'application/pdf'
+          : (ext == 'jpg' || ext == 'jpeg')
+              ? 'image/jpeg'
+              : 'image/$ext';
       final safeName = resolvedName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
       final storagePath = '$userId/${DateTime.now().millisecondsSinceEpoch}_$safeName';
 

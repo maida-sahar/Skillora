@@ -110,6 +110,19 @@ class _ScholarshipDetailScreenState extends State<ScholarshipDetailScreen> {
               return const Center(child: CircularProgressIndicator(color: AppColors.primary));
             }
 
+            if (snapshot.hasError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: AppEmptyState(
+                    title: 'Error Loading Scholarship',
+                    message: '${snapshot.error}',
+                    fallbackIcon: Icons.error_outline_rounded,
+                  ),
+                ),
+              );
+            }
+
             if (!snapshot.hasData || !snapshot.data!.exists) {
               return const Center(
                 child: AppEmptyState(

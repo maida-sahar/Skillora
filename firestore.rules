@@ -42,6 +42,16 @@ service cloud.firestore {
 
       // Admins have full create/update/delete control (e.g. role modification)
       allow write: if isAdmin();
+
+      // Education subcollection
+      match /education/{educationId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
+
+      // Achievements subcollection
+      match /achievements/{achievementId} {
+        allow read, write: if isOwner(userId) || isAdmin();
+      }
     }
 
     // =========================================================================

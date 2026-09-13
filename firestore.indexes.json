@@ -9,6 +9,14 @@
       ]
     },
     {
+      "collectionGroup": "documents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "uploadedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "applications",
       "queryScope": "COLLECTION",
       "fields": [

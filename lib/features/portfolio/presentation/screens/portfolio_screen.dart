@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -142,10 +143,17 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Project added!'), backgroundColor: AppColors.success),
                         );
+                      } else if (!success && ctx.mounted) {
+                        final msg = portfolioProvider.errorMessage ?? 'Failed to add portfolio project.';
+                        ScaffoldMessenger.of(ctx).showSnackBar(
+                          SnackBar(content: Text(msg), backgroundColor: AppColors.error),
+                        );
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-                    child: const Text('Add to Portfolio'),
+                    child: portfolioProvider.isLoading
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Text('Add to Portfolio', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -209,7 +217,16 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
                   Row(
                     children: [
                       IconButton(
-                        onPressed: () => _showAddProjectDialog(context, user?.id ?? ''),
+                        onPressed: () {
+                          final activeUid = user?.id ?? FirebaseAuth.instance.currentUser?.uid;
+                          if (activeUid == null || activeUid.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Please sign in to add portfolio projects'), backgroundColor: AppColors.error),
+                            );
+                            return;
+                          }
+                          _showAddProjectDialog(context, activeUid);
+                        },
                         icon: const Icon(Icons.add_rounded, color: Colors.white, size: 22),
                         style: IconButton.styleFrom(
                           backgroundColor: AppColors.surfaceDark,
