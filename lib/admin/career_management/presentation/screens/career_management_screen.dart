@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
 
+import '../../../../shared/utils/app_image_helper.dart';
+
 class CareerManagementScreen extends StatefulWidget {
   const CareerManagementScreen({super.key});
 
@@ -31,12 +33,22 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
     final customCategoryController = TextEditingController(text: isCustom ? initialCategory : '');
     final descriptionController = TextEditingController(text: initialData?['description'] ?? '');
     final educationController = TextEditingController(text: initialData?['education'] ?? '');
-    final skillsController = TextEditingController(
-      text: initialData?['requiredSkills'] != null
-          ? (initialData!['requiredSkills'] as List).join(', ')
-          : '',
+
+    final rawSkills = initialData?['requiredSkills'];
+    String skillsText = '';
+    if (rawSkills is List) {
+      skillsText = rawSkills.join(', ');
+    } else if (rawSkills != null) {
+      skillsText = rawSkills.toString();
+    }
+    final skillsController = TextEditingController(text: skillsText);
+
+    final validLevels = ['Entry Level', 'Mid Level', 'Senior Level', 'Executive'];
+    String rawCareerLevel = (initialData?['careerLevel'] ?? 'Entry Level').toString();
+    String careerLevel = validLevels.firstWhere(
+      (l) => l.toLowerCase() == rawCareerLevel.toLowerCase(),
+      orElse: () => 'Entry Level',
     );
-    String careerLevel = initialData?['careerLevel'] ?? 'Entry Level';
 
     showDialog(
       context: context,
@@ -90,7 +102,7 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   value: careerLevel,
-                  items: ['Entry Level', 'Mid Level', 'Senior Level', 'Executive']
+                  items: validLevels
                       .map((l) => DropdownMenuItem(value: l, child: Text(l)))
                       .toList(),
                   onChanged: (val) {
@@ -245,12 +257,24 @@ class _CareerManagementScreenState extends State<CareerManagementScreen> {
                       final level = data['careerLevel'] ?? 'Entry Level';
                       final hasNoCategory = category.isEmpty;
 
+                      final rawImage = data['image'] as String? ?? data['coverImage'] as String?;
+                      final imageUrl = AppImageHelper.getCareerImage(rawImage, doc.id, title, index);
+
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ListTile(
-                          leading: const CircleAvatar(
-                            backgroundColor: Colors.indigo,
-                            child: Icon(Icons.work, color: Colors.white),
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              imageUrl,
+                              width: 44,
+                              height: 44,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => const CircleAvatar(
+                                backgroundColor: Colors.indigo,
+                                child: Icon(Icons.work, color: Colors.white),
+                              ),
+                            ),
                           ),
                           title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Column(

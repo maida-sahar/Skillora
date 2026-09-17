@@ -5,6 +5,8 @@ import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_typography.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
+import '../../../../shared/widgets/app_mentor_avatar.dart';
+import '../../../../shared/utils/app_image_helper.dart';
 import '../providers/auth_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -216,8 +218,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             final title = item['title'] as String? ?? 'Career';
                             final description = item['description'] as String? ?? '';
                             final category = item['category'] as String? ?? 'General';
-                            final image = item['image'] as String? ??
-                                'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=600&auto=format&fit=crop';
+                            final rawImage = item['image'] as String? ?? item['coverImage'] as String?;
+                            final image = AppImageHelper.getCareerImage(rawImage, doc.id, title, index);
 
                             return GestureDetector(
                               onTap: () {
@@ -544,36 +546,45 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: docs.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 20),
                       itemBuilder: (context, index) {
-                        final mentor = docs[index].data();
+                        final mentorDoc = docs[index];
+                        final mentor = mentorDoc.data();
                         final name = mentor['name'] as String? ?? 'Mentor';
-                        final role = mentor['title'] as String? ?? mentor['bio'] as String? ?? 'Advisor';
-                        final avatar = mentor['avatarUrl'] as String? ??
-                            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop';
+                        final role = mentor['title'] as String? ?? mentor['experience'] as String? ?? mentor['bio'] as String? ?? 'Advisor';
+                        final avatar = mentor['profileImage'] as String? ?? mentor['avatarUrl'] as String? ?? mentor['image'] as String?;
 
-                        return Column(
-                          children: [
-                            CircleAvatar(
-                              radius: 28,
-                              backgroundColor: AppColors.surfaceDark,
-                              backgroundImage: NetworkImage(avatar),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              name,
-                              style: AppTypography.bodySmall.copyWith(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              RouteNames.mentorDetails,
+                              arguments: mentorDoc.id,
+                            );
+                          },
+                          child: Column(
+                            children: [
+                              AppMentorAvatar(
+                                imageUrl: AppImageHelper.getMentorAvatar(avatar, mentorDoc.id, index),
+                                radius: 28,
+                                backgroundColor: AppColors.surfaceDark,
                               ),
-                            ),
-                            Text(
-                              role,
-                              style: AppTypography.bodySmall.copyWith(
-                                color: AppColors.textMutedDark,
-                                fontSize: 10,
+                              const SizedBox(height: 6),
+                              Text(
+                                name,
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                          ],
+                              Text(
+                                role,
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: AppColors.textMutedDark,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       },
                     ),

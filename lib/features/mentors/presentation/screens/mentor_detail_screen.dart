@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_typography.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
+import '../../../../shared/widgets/app_mentor_avatar.dart';
+import '../../../../shared/utils/app_image_helper.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 class MentorDetailScreen extends StatefulWidget {
@@ -108,8 +110,7 @@ class _MentorDetailScreenState extends State<MentorDetailScreen> {
             final role = data['title'] as String? ?? data['role'] as String? ?? 'Career Advisor';
             final organization = data['organization'] as String? ?? data['company'] as String? ?? 'Skillora Mentors';
             final bio = data['bio'] as String? ?? data['description'] as String? ?? 'Experienced industry mentor.';
-            final avatar = data['avatarUrl'] as String? ?? data['image'] as String? ??
-                'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop';
+            final avatar = data['profileImage'] as String? ?? data['avatarUrl'] as String? ?? data['image'] as String?;
             final expertise = List<String>.from(data['skills'] ?? data['expertise'] ?? ['Career Guidance', 'Portfolio Review']);
 
             return Column(
@@ -151,10 +152,10 @@ class _MentorDetailScreenState extends State<MentorDetailScreen> {
                       children: [
                         const SizedBox(height: 10),
                         // Mentor Avatar Header
-                        CircleAvatar(
+                        AppMentorAvatar(
+                          imageUrl: AppImageHelper.getMentorAvatar(avatar, docId!),
                           radius: 54,
                           backgroundColor: AppColors.surfaceDark,
-                          backgroundImage: NetworkImage(avatar),
                         ),
                         const SizedBox(height: 16),
 

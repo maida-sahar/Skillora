@@ -23,85 +23,188 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
     final companyController = TextEditingController(text: initialData?['company'] ?? '');
     final locationController = TextEditingController(text: initialData?['location'] ?? 'Remote');
     final descController = TextEditingController(text: initialData?['description'] ?? '');
-    String type = initialData?['type'] ?? 'Full-time';
-    String status = initialData?['status'] ?? 'Open';
+    final validTypes = ['Full-time', 'Part-time', 'Internship', 'Remote'];
+    String rawType = (initialData?['type'] ?? 'Full-time').toString();
+    String type = validTypes.firstWhere(
+      (t) => t.toLowerCase() == rawType.toLowerCase(),
+      orElse: () => 'Full-time',
+    );
+
+    final validStatuses = ['Open', 'Closed'];
+    String rawStatus = (initialData?['status'] ?? 'Open').toString();
+    String status = validStatuses.firstWhere(
+      (s) => s.toLowerCase() == rawStatus.toLowerCase(),
+      orElse: () => 'Open',
+    );
+    bool isSaving = false;
+    final formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-
-          title: Text(docId == null ? 'Add Job / Internship' : 'Edit Job'),
+          title: Text(docId == null
+              ? 'Add Job / Internship'
+              : (type == 'Internship' ? 'Edit Internship' : 'Edit Job')),
           content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Job Title')),
-                const SizedBox(height: 10),
-                TextField(controller: companyController, decoration: const InputDecoration(labelText: 'Company')),
-                const SizedBox(height: 10),
-                TextField(controller: locationController, decoration: const InputDecoration(labelText: 'Location')),
-                const SizedBox(height: 10),
-                TextField(controller: descController, maxLines: 2, decoration: const InputDecoration(labelText: 'Description')),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  initialValue: type,
-                  items: ['Full-time', 'Part-time', 'Internship', 'Remote']
-                      .map((t) => DropdownMenuItem(value: t, child: Text(t)))
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) setDialogState(() => type = val);
-                  },
-                  decoration: const InputDecoration(labelText: 'Job Type'),
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  initialValue: status,
-                  items: ['Open', 'Closed']
-                      .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                      .toList(),
-                  onChanged: (val) {
-                    if (val != null) setDialogState(() => status = val);
-                  },
-                  decoration: const InputDecoration(labelText: 'Status'),
-                ),
-              ],
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: titleController,
+                    enabled: !isSaving,
+                    decoration: const InputDecoration(
+                      labelText: 'Job / Internship Title *',
+                      hintText: 'e.g. Flutter Developer or UI/UX Intern',
+                    ),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Title is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: companyController,
+                    enabled: !isSaving,
+                    decoration: const InputDecoration(
+                      labelText: 'Company *',
+                      hintText: 'e.g. TechCorp Inc.',
+                    ),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Company is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: locationController,
+                    enabled: !isSaving,
+                    decoration: const InputDecoration(
+                      labelText: 'Location *',
+                      hintText: 'e.g. Remote, San Francisco, CA',
+                    ),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return 'Location is required';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    controller: descController,
+                    enabled: !isSaving,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'Job duties, requirements, and benefits...',
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: type,
+                    items: validTypes
+                        .map((t) => DropdownMenuItem(value: t, child: Text(t)))
+                        .toList(),
+                    onChanged: isSaving
+                        ? null
+                        : (val) {
+                            if (val != null) setDialogState(() => type = val);
+                          },
+                    decoration: const InputDecoration(labelText: 'Job Type'),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: status,
+                    items: validStatuses
+                        .map((s) => DropdownMenuItem(value: s, child: Text(s)))
+                        .toList(),
+                    onChanged: isSaving
+                        ? null
+                        : (val) {
+                            if (val != null) setDialogState(() => status = val);
+                          },
+                    decoration: const InputDecoration(labelText: 'Status'),
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            TextButton(
+              onPressed: isSaving ? null : () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
             ElevatedButton(
-              onPressed: () async {
-                if (titleController.text.trim().isEmpty) return;
+              onPressed: isSaving
+                  ? null
+                  : () async {
+                      if (!formKey.currentState!.validate()) return;
+                      final messenger = ScaffoldMessenger.of(context);
+                      setDialogState(() => isSaving = true);
 
-                final data = {
-                  'title': titleController.text.trim(),
-                  'company': companyController.text.trim(),
-                  'location': locationController.text.trim(),
-                  'type': type,
-                  'description': descController.text.trim(),
-                  'status': status,
-                  'deadline': Timestamp.fromDate(DateTime.now().add(const Duration(days: 30))),
-                  'updatedAt': Timestamp.now(),
-                };
+                      try {
+                        final isInternship = type == 'Internship';
+                        final data = {
+                          'title': titleController.text.trim(),
+                          'company': companyController.text.trim(),
+                          'location': locationController.text.trim(),
+                          'type': type,
+                          'description': descController.text.trim(),
+                          'status': status,
+                          'deadline': initialData?['deadline'] ??
+                              Timestamp.fromDate(DateTime.now().add(const Duration(days: 30))),
+                          'updatedAt': Timestamp.now(),
+                        };
 
-                if (docId == null) {
-                  data['createdAt'] = Timestamp.now();
-                  await FirebaseFirestore.instance.collection('jobs').add(data);
-                } else {
-                  await FirebaseFirestore.instance.collection('jobs').doc(docId).update(data);
-                }
+                        if (docId == null) {
+                          data['createdAt'] = Timestamp.now();
+                          await FirebaseFirestore.instance.collection('jobs').add(data);
+                        } else {
+                          await FirebaseFirestore.instance.collection('jobs').doc(docId).update(data);
+                        }
 
-                if (ctx.mounted) {
-                  Navigator.pop(ctx);
-                }
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(docId == null ? 'Job posted!' : 'Job updated!')),
-                  );
-                }
-              },
-              child: const Text('Save'),
+                        if (ctx.mounted) {
+                          Navigator.pop(ctx);
+                        }
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text(docId == null
+                                ? (isInternship
+                                    ? 'Internship posted successfully!'
+                                    : 'Job posted successfully!')
+                                : (isInternship
+                                    ? 'Internship updated successfully!'
+                                    : 'Job updated successfully!')),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } catch (e) {
+                        if (ctx.mounted) {
+                          setDialogState(() => isSaving = false);
+                        }
+                        messenger.showSnackBar(
+                          SnackBar(
+                            content: Text('Failed to save: ${e.toString()}'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+              child: isSaving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    )
+                  : const Text('Save'),
             ),
           ],
         ),
@@ -110,10 +213,11 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
   }
 
   Future<void> _deleteJob(String docId, String title) async {
+    final messenger = ScaffoldMessenger.of(context);
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Job'),
+        title: const Text('Delete Job / Internship'),
         content: Text('Are you sure you want to delete "$title"?'),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
@@ -127,10 +231,14 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
     );
 
     if (confirm == true) {
-      await FirebaseFirestore.instance.collection('jobs').doc(docId).delete();
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Job deleted.')),
+      try {
+        await FirebaseFirestore.instance.collection('jobs').doc(docId).delete();
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Item deleted successfully.')),
+        );
+      } catch (e) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Failed to delete: ${e.toString()}'), backgroundColor: Colors.red),
         );
       }
     }
@@ -146,7 +254,7 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.indigo,
         icon: const Icon(Icons.add),
-        label: const Text('Add Job'),
+        label: const Text('Add Job / Internship'),
         onPressed: () => _showJobDialog(),
       ),
       body: SafeArea(
@@ -177,7 +285,8 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
                   final filtered = docs.where((doc) {
                     final title = (doc.data()['title'] ?? '').toString().toLowerCase();
                     final company = (doc.data()['company'] ?? '').toString().toLowerCase();
-                    return query.isEmpty || title.contains(query) || company.contains(query);
+                    final type = (doc.data()['type'] ?? '').toString().toLowerCase();
+                    return query.isEmpty || title.contains(query) || company.contains(query) || type.contains(query);
                   }).toList();
 
                   if (filtered.isEmpty) {
@@ -186,7 +295,7 @@ class _JobManagementScreenState extends State<JobManagementScreen> {
                       message: 'No posted jobs or internships match your query.',
                       lottieAsset: 'assets/animations/empty_data.json',
                       fallbackIcon: Icons.business_center_outlined,
-                      actionText: 'Add Job',
+                      actionText: 'Add Job / Internship',
                       onActionPressed: () => _showJobDialog(),
                     );
                   }

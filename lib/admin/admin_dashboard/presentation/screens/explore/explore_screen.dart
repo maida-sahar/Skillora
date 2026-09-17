@@ -6,6 +6,8 @@ import '../../../../../theme/app_colors.dart';
 import '../../../../../theme/app_typography.dart';
 import '../../../../../config/routes/route_names.dart';
 import '../../../../../shared/widgets/empty_state_widget.dart';
+import '../../../../../shared/widgets/app_mentor_avatar.dart';
+import '../../../../../shared/utils/app_image_helper.dart';
 import '../../../../../features/auth/presentation/providers/auth_provider.dart';
 
 class ExploreScreen extends StatefulWidget {
@@ -402,8 +404,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                       final data = doc.data();
                       final title = data['title'] as String? ?? data['name'] as String? ?? 'Opportunity';
                       final description = data['description'] as String? ?? data['bio'] as String? ?? data['organization'] as String? ?? '';
-                      final image = data['image'] as String? ?? data['avatarUrl'] as String? ??
-                          'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400&auto=format&fit=crop';
+                      final image = data['profileImage'] as String? ?? data['avatarUrl'] as String? ?? data['image'] as String?;
                       final category = data['category'] as String? ?? data['field'] as String? ?? 'General';
                       final level = data['careerLevel'] as String? ?? data['amount']?.toString() ?? 'Active';
 
@@ -436,21 +437,28 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Left Thumbnail Image
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.network(
-                                  image,
-                                  width: 78,
-                                  height: 78,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => Container(
+                              if (_selectedCategoryIndex == 2)
+                                AppMentorAvatar(
+                                  imageUrl: AppImageHelper.getMentorAvatar(image, doc.id, index),
+                                  radius: 39,
+                                  backgroundColor: const Color(0xFF262836),
+                                )
+                              else
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.network(
+                                    AppImageHelper.getCareerImage(image, doc.id, title, index),
                                     width: 78,
                                     height: 78,
-                                    color: const Color(0xFF262836),
-                                    child: const Icon(Icons.work_outline_rounded, color: Colors.white54),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Container(
+                                      width: 78,
+                                      height: 78,
+                                      color: const Color(0xFF262836),
+                                      child: const Icon(Icons.work_outline_rounded, color: Colors.white54),
+                                    ),
                                   ),
                                 ),
-                              ),
 
                               const SizedBox(width: 12),
 

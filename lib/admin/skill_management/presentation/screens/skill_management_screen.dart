@@ -23,7 +23,12 @@ class _SkillManagementScreenState extends State<SkillManagementScreen> {
     final nameController = TextEditingController(text: existing?.name ?? '');
     final categoryController = TextEditingController(text: existing?.category ?? 'General');
     final descController = TextEditingController(text: existing?.description ?? '');
-    String level = existing?.level ?? 'Intermediate';
+    final validLevels = ['Beginner', 'Intermediate', 'Advanced'];
+    String rawLevel = (existing?.level ?? 'Intermediate').toString();
+    String level = validLevels.firstWhere(
+      (l) => l.toLowerCase() == rawLevel.toLowerCase(),
+      orElse: () => 'Intermediate',
+    );
 
     showDialog(
       context: context,
@@ -51,8 +56,8 @@ class _SkillManagementScreenState extends State<SkillManagementScreen> {
                 ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  initialValue: level,
-                  items: ['Beginner', 'Intermediate', 'Advanced']
+                  value: level,
+                  items: validLevels
                       .map((l) => DropdownMenuItem(value: l, child: Text(l)))
                       .toList(),
                   onChanged: (val) {

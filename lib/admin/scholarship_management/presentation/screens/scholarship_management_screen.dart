@@ -26,7 +26,12 @@ class _ScholarshipManagementScreenState extends State<ScholarshipManagementScree
     final countryController = TextEditingController(text: initialData?['country'] ?? '');
     final descController = TextEditingController(text: initialData?['description'] ?? '');
     final urlController = TextEditingController(text: initialData?['applicationUrl'] ?? '');
-    String status = initialData?['status'] ?? 'Open';
+    final validStatuses = ['Open', 'Closed', 'Upcoming'];
+    String rawStatus = (initialData?['status'] ?? 'Open').toString();
+    String status = validStatuses.firstWhere(
+      (s) => s.toLowerCase() == rawStatus.toLowerCase(),
+      orElse: () => 'Open',
+    );
 
     showDialog(
       context: context,
@@ -53,8 +58,8 @@ class _ScholarshipManagementScreenState extends State<ScholarshipManagementScree
                 TextField(controller: urlController, decoration: const InputDecoration(labelText: 'Application URL')),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  initialValue: status,
-                  items: ['Open', 'Closed', 'Upcoming']
+                  value: status,
+                  items: validStatuses
                       .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
                   onChanged: (val) {

@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
 
+import '../../../../shared/widgets/app_mentor_avatar.dart';
+import '../../../../shared/utils/app_image_helper.dart';
+
 class MentorManagementScreen extends StatefulWidget {
   const MentorManagementScreen({super.key});
 
@@ -19,18 +22,35 @@ class _MentorManagementScreenState extends State<MentorManagementScreen> {
   }
 
   void _showMentorDialog({String? docId, Map<String, dynamic>? initialData}) {
-    final nameController = TextEditingController(text: initialData?['name'] ?? '');
-    final bioController = TextEditingController(text: initialData?['bio'] ?? '');
-    final expController = TextEditingController(text: initialData?['experience'] ?? '');
-    final expertiseController = TextEditingController(
-      text: initialData?['expertise'] != null ? (initialData!['expertise'] as List).join(', ') : '',
-    );
-    String status = initialData?['status'] ?? 'available';
+    debugPrint('3 - EDIT CALLBACK STARTED (docId: $docId)');
+    try {
+      final nameController = TextEditingController(text: initialData?['name']?.toString() ?? '');
+      final bioController = TextEditingController(text: initialData?['bio']?.toString() ?? '');
+      final expController = TextEditingController(text: initialData?['experience']?.toString() ?? '');
 
-    showDialog(
-      context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
+      String expertiseText = '';
+      final rawExpertise = initialData?['expertise'];
+      if (rawExpertise is List) {
+        expertiseText = rawExpertise.map((e) => e.toString()).join(', ');
+      } else if (rawExpertise is String) {
+        expertiseText = rawExpertise;
+      }
+      final expertiseController = TextEditingController(text: expertiseText);
+
+      const validStatuses = ['available', 'busy', 'offline'];
+      final rawStatus = (initialData?['status'] ?? 'available').toString().trim().toLowerCase();
+      String status = validStatuses.contains(rawStatus) ? rawStatus : 'available';
+
+      debugPrint('4 - OPENING EDIT FORM (name: ${nameController.text}, status: $status)');
+
+      showDialog(
+        context: context,
+        builder: (ctx) {
+          debugPrint('5 - EDIT FORM BUILDER STARTED');
+          return StatefulBuilder(
+        builder: (context, setDialogState) {
+          debugPrint('6 - EDIT FORM DATA LOADED');
+          return AlertDialog(
 
           title: Text(docId == null ? 'Add Mentor Profile' : 'Edit Mentor'),
           content: SingleChildScrollView(
@@ -46,7 +66,7 @@ class _MentorManagementScreenState extends State<MentorManagementScreen> {
                 TextField(controller: expertiseController, decoration: const InputDecoration(labelText: 'Expertise (comma separated)')),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
-                  initialValue: status,
+                  value: status,
                   items: ['available', 'busy', 'offline']
                       .map((s) => DropdownMenuItem(value: s, child: Text(s.toUpperCase())))
                       .toList(),
@@ -99,9 +119,20 @@ class _MentorManagementScreenState extends State<MentorManagementScreen> {
               child: const Text('Save'),
             ),
           ],
-        ),
-      ),
-    );
+          );
+        },
+          );
+        },
+      );
+    } catch (e, stack) {
+      debugPrint('EDIT MENTOR DIALOG ERROR: $e');
+      debugPrint('$stack');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open edit form: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _deleteMentor(String docId, String name) async {
@@ -193,13 +224,18 @@ class _MentorManagementScreenState extends State<MentorManagementScreen> {
                       final name = data['name'] ?? 'Mentor';
                       final experience = data['experience'] ?? '';
                       final status = data['status'] ?? 'available';
+                      final rawImage = data['profileImage'] as String? ??
+                          data['avatarUrl'] as String? ??
+                          data['image'] as String?;
+                      final avatarUrl = AppImageHelper.getMentorAvatar(rawImage, doc.id, index);
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         child: ListTile(
-                          leading: const CircleAvatar(
+                          leading: AppMentorAvatar(
+                            imageUrl: avatarUrl,
+                            radius: 22,
                             backgroundColor: Colors.indigo,
-                            child: Icon(Icons.person, color: Colors.white),
                           ),
                           title: Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: Text('$experience • Status: ${status.toString().toUpperCase()}'),
@@ -208,7 +244,11 @@ class _MentorManagementScreenState extends State<MentorManagementScreen> {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.edit, color: Colors.blue),
-                                onPressed: () => _showMentorDialog(docId: doc.id, initialData: data),
+                                onPressed: () {
+                                  debugPrint('1 - PENCIL CLICKED');
+                                  debugPrint('2 - MENTOR ID: ${doc.id}');
+                                  _showMentorDialog(docId: doc.id, initialData: data);
+                                },
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete, color: Colors.red),

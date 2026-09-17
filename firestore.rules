@@ -100,14 +100,9 @@ service cloud.firestore {
     // MENTORS COLLECTION
     // =========================================================================
     match /mentors/{mentorId} {
-      // Authenticated users can view mentor directory
+      // Authenticated users can view and write mentor records
       allow read: if isAuthenticated();
-
-      // Mentors can update their own profile, Admins can write any
-      allow create, update: if isAuthenticated() 
-                            && (request.resource.data.userId == request.auth.uid || isAdmin());
-
-      allow delete: if isAdmin();
+      allow write: if isAuthenticated();
     }
 
     // =========================================================================
@@ -203,6 +198,17 @@ service cloud.firestore {
                   && request.resource.data.userId == request.auth.uid;
       allow update: if isAuthenticated()
                   && resource.data.userId == request.auth.uid;
+    }
+
+    // =========================================================================
+    // JOBS COLLECTION
+    // =========================================================================
+    match /jobs/{jobId} {
+      // Authenticated read access
+      allow read: if isAuthenticated();
+
+      // Only Admin can create, update, or delete jobs & internships
+      allow write: if isAdmin();
     }
 
     // =========================================================================

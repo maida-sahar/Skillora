@@ -31,11 +31,14 @@ class MentorModel {
 
   factory MentorModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data() ?? {};
+    final imageVal = data['profileImage'] as String? ??
+        data['avatarUrl'] as String? ??
+        data['image'] as String?;
     return MentorModel(
       id: doc.id,
       userId: data['userId'] as String? ?? '',
       name: data['name'] as String? ?? '',
-      profileImage: data['profileImage'] as String?,
+      profileImage: imageVal,
       bio: data['bio'] as String? ?? '',
       expertise: List<String>.from(data['expertise'] ?? []),
       experience: data['experience'] as String? ?? '',
@@ -53,6 +56,8 @@ class MentorModel {
       'userId': userId,
       'name': name,
       'profileImage': profileImage,
+      'avatarUrl': profileImage,
+      'image': profileImage,
       'bio': bio,
       'expertise': expertise,
       'experience': experience,

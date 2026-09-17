@@ -5,6 +5,7 @@ import '../../../../theme/app_colors.dart';
 import '../../../../theme/app_typography.dart';
 import '../../../../config/routes/route_names.dart';
 import '../../../../shared/widgets/empty_state_widget.dart';
+import '../../../../shared/utils/app_image_helper.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 
 class CareerDetailScreen extends StatefulWidget {
@@ -129,8 +130,8 @@ class _CareerDetailScreenState extends State<CareerDetailScreen> {
             final education = data['education'] as String? ?? 'Bachelor Degree or Equivalent';
             final level = data['careerLevel'] as String? ?? 'Entry Level';
             final skills = List<String>.from(data['requiredSkills'] ?? []);
-            final image = data['image'] as String? ??
-                'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?q=80&w=800&auto=format&fit=crop';
+            final rawImage = data['image'] as String? ?? data['coverImage'] as String?;
+            final image = AppImageHelper.getCareerImage(rawImage, careerId!, title);
             final company = data['company'] as String? ?? data['organization'] as String? ?? 'Skillora Admin';
 
             return Column(
