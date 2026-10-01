@@ -12,6 +12,7 @@ import '../features/skills/presentation/providers/skills_provider.dart';
 import '../features/skill_assessment/presentation/providers/skill_assessment_provider.dart';
 import '../features/skill_gap_analysis/presentation/providers/skill_gap_provider.dart';
 import '../features/career_recommendations/presentation/providers/career_recommendations_provider.dart';
+import '../features/ai_chat/presentation/providers/ai_chat_provider.dart';
 import '../features/scholarship_eligibility/presentation/providers/eligibility_provider.dart';
 import '../features/learning_roadmap/presentation/providers/roadmap_provider.dart';
 import '../features/courses_resources/presentation/providers/courses_provider.dart';
@@ -33,6 +34,7 @@ class SkilloraApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SkillAssessmentProvider()),
         ChangeNotifierProvider(create: (_) => SkillGapProvider()),
         ChangeNotifierProvider(create: (_) => CareerRecommendationsProvider()),
+        ChangeNotifierProvider(create: (_) => AiChatProvider()),
         ChangeNotifierProvider(create: (_) => EligibilityProvider()),
         ChangeNotifierProvider(create: (_) => RoadmapProvider()),
         ChangeNotifierProvider(create: (_) => CoursesProvider()),

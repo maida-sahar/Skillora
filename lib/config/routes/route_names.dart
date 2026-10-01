@@ -40,6 +40,7 @@ class RouteNames {
   static const String jobDetails = '/jobs-internships/detail';
   static const String notifications = '/notifications';
   static const String settings = '/settings';
+  static const String aiChat = '/ai-chat';
 
   // Admin Features Routes
   static const String adminDashboard = '/admin/dashboard';

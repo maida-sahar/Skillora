@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import '../config/routes/route_names.dart';
 import '../shared/widgets/navigation/skillora_bottom_nav.dart';
 import '../features/auth/presentation/screens/home_screen.dart';
 import '../admin/admin_dashboard/presentation/screens/explore/explore_screen.dart';
@@ -31,6 +32,14 @@ class _AppShellState extends State<AppShell> {
     return Scaffold(
       backgroundColor: AppColors.backgroundDark,
       body: IndexedStack(index: _currentIndex, children: _screens),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'ai-chat-fab',
+        tooltip: 'Skillora AI',
+        backgroundColor: AppColors.primary,
+        onPressed: () => Navigator.pushNamed(context, RouteNames.aiChat),
+        child: const Icon(Icons.auto_awesome_rounded, color: Colors.white),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: SkilloraBottomNav(
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
@@ -38,4 +47,3 @@ class _AppShellState extends State<AppShell> {
     );
   }
 }
-

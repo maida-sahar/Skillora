@@ -24,6 +24,7 @@ import '../../features/courses_resources/presentation/screens/courses_resources_
 import '../../features/careers/presentation/screens/career_detail_screen.dart';
 import '../../features/scholarships/presentation/screens/scholarship_detail_screen.dart';
 import '../../features/mentors/presentation/screens/mentor_detail_screen.dart';
+import '../../features/ai_chat/presentation/screens/ai_chat_screen.dart';
 import '../../screens/app_shell.dart';
 import '../../screens/onboarding_screen.dart';
 
@@ -53,6 +54,7 @@ class UserRoutes {
         RouteNames.skillAssessment: (context) => const SkillAssessmentScreen(),
         RouteNames.skillGapAnalysis: (context) => const SkillGapAnalysisScreen(),
         RouteNames.careerRecommendations: (context) => const CareerRecommendationsScreen(),
+        RouteNames.aiChat: (context) => const AiChatScreen(),
         RouteNames.scholarshipEligibility: (context) => const ScholarshipEligibilityScreen(),
         RouteNames.learningRoadmap: (context) => const LearningRoadmapScreen(),
         RouteNames.coursesResources: (context) => const CoursesResourcesScreen(),
@@ -67,4 +69,3 @@ class UserRoutes {
         RouteNames.settings: (context) => const SettingsScreen(),
       };
 }
-

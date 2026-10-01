@@ -19,7 +19,13 @@ class GeminiService {
     if (key.isNotEmpty && !key.contains('YOUR_GEMINI_API_KEY')) {
       try {
         _model = GenerativeModel(
-          model: 'gemini-1.5-flash',
+          // 'gemini-1.5-flash' was shut down by Google on 29 Sept 2025 —
+          // every request to it now fails with a 404, which is why the
+          // Skill Gap Analysis / Career Recommendations screens were
+          // returning nothing. 'gemini-3.5-flash-lite' is Google's
+          // current GA model, no billing required, and is what Google
+          // explicitly recommends for new projects as of Sept 2026.
+          model: 'gemini-3.5-flash-lite',
           apiKey: key,
         );
       } catch (e) {
@@ -86,11 +92,38 @@ Please provide a structured analysis including:
     }
   }
 
+  /// Starts a multi-turn chat session for the in-app AI advisor.
+  /// [contextPrompt] (who the student is + the app's live careers /
+  /// scholarships / jobs / courses) is seeded as the first exchange, so it
+  /// works on every version of the google_generative_ai package (no
+  /// systemInstruction needed).
+  ChatSession startChat({required String contextPrompt}) {
+    if (!isKeyConfigured || _model == null) {
+      throw Exception('Gemini API key is not configured. Set GEMINI_API_KEY in .env.');
+    }
+    return _model!.startChat(history: [
+      Content.text(contextPrompt),
+      Content.model([TextPart('Understood. I am ready to advise this student.')]),
+    ]);
+  }
+
   /// Sends [prompt] to Gemini and parses the response as JSON. Strips
   /// ```json ... ``` markdown fences if Gemini wraps its answer in one
   /// (it frequently does even when told not to).
+  ///
+  /// IMPORTANT: this now throws on failure instead of silently returning
+  /// `{}`. RecommendationService's three methods (getPersonalizedRecommendations,
+  /// analyzeSkillGap, checkScholarshipEligibility) all call this directly with
+  /// no try/catch of their own, and the repositories one layer up
+  /// (CareerRecommendationsRepositoryImpl, SkillGapRepositoryImpl) already wrap
+  /// their calls in try/catch and turn failures into a ServerException that the
+  /// Providers already display as a red error message on screen. Swallowing the
+  /// error here to `{}` was bypassing all of that — the screens looked like they
+  /// were doing nothing instead of showing what actually went wrong.
   Future<Map<String, dynamic>> generateJson(String prompt) async {
-    if (!isKeyConfigured || _model == null) return {};
+    if (!isKeyConfigured || _model == null) {
+      throw Exception('Gemini API key is not configured. Set GEMINI_API_KEY in .env.');
+    }
     try {
       final response = await _model!.generateContent([Content.text(prompt)]);
       final raw = response.text ?? '{}';
@@ -100,7 +133,7 @@ Please provide a structured analysis including:
       return {'result': decoded};
     } catch (e) {
       debugPrint('Gemini generateJson error: $e');
-      return {};
+      rethrow;
     }
   }
 }
